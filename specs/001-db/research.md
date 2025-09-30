@@ -370,7 +370,7 @@ impl PathGenerationRuleBuilder {
 - **型安全性**: Extractor patternで型安全なリクエスト処理（憲法原則VIに準拠）
 - **tower統合**: ミドルウェア、ロギング、タイムアウト等が標準的
 - **async/await**: Tokio runtimeでネイティブ対応、並行性要件に最適
-- **モダン**: Rust 2021 editionのイディオムに沿う
+- **モダン**: Rust 2024 editionのイディオムに沿う
 - **学習曲線**: actix-webよりシンプル、概念的に直感的
 
 **Implementation Approach**:

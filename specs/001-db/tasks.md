@@ -102,17 +102,17 @@
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
 ### Models - Newtypes & Core Types (T037-T043)
-- [ ] T037 [P] DeptCode, SectionCode, UserId, TaskId, DocumentId, TypeCode newtypes in backend/src/models/newtypes.rs
-- [ ] T038 [P] Permissions struct in backend/src/models/permissions.rs
-- [ ] T039 [P] Department model in backend/src/models/department.rs
-- [ ] T040 [P] Section model in backend/src/models/section.rs
-- [ ] T041 [P] User model in backend/src/models/user.rs
-- [ ] T042 [P] BusinessTask model in backend/src/models/business_task.rs
-- [ ] T043 [P] DocumentType model in backend/src/models/document_type.rs
+- [x] T037 [P] DeptCode, SectionCode, UserId, TaskId, DocumentId, TypeCode newtypes in backend/src/models/newtypes.rs
+- [x] T038 [P] Permissions struct in backend/src/models/permissions.rs
+- [x] T039 [P] Department model in backend/src/models/department.rs
+- [x] T040 [P] Section model in backend/src/models/section.rs
+- [x] T041 [P] User model in backend/src/models/user.rs
+- [x] T042 [P] BusinessTask model in backend/src/models/business_task.rs
+- [x] T043 [P] DocumentType model in backend/src/models/document_type.rs
 
 ### Models - Generation Rules & Document Path (T044-T045)
-- [ ] T044 PathGenerationRule model with RuleComponent enum in backend/src/models/generation_rule.rs
-- [ ] T045 DocumentPath model in backend/src/models/document_path.rs
+- [x] T044 PathGenerationRule model with RuleComponent enum in backend/src/models/generation_rule.rs
+- [x] T045 DocumentPath model in backend/src/models/document_path.rs
 
 ### Storage Layer - sqlx Queries (T046-T053)
 - [ ] T046 [P] Department CRUD with sqlx::query! in backend/src/storage/department.rs
