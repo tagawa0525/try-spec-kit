@@ -33,6 +33,19 @@ impl Department {
             self.sections.push(section);
         }
     }
+    
+    // Getters
+    pub fn code(&self) -> &DeptCode {
+        &self.code
+    }
+    
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn sections(&self) -> &[SectionCode] {
+        &self.sections
+    }
 }
 
 #[cfg(test)]

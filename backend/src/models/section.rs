@@ -22,6 +22,19 @@ impl Section {
             department: DeptCode::new(department),
         }
     }
+    
+    // Getters
+    pub fn code(&self) -> &SectionCode {
+        &self.code
+    }
+    
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn department(&self) -> &DeptCode {
+        &self.department
+    }
 }
 
 #[cfg(test)]

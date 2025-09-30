@@ -38,6 +38,27 @@ impl User {
         self.permissions = permissions;
         self
     }
+    
+    // Getters
+    pub fn id(&self) -> &UserId {
+        &self.id
+    }
+    
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    
+    pub fn department(&self) -> &DeptCode {
+        &self.department
+    }
+    
+    pub fn section(&self) -> &SectionCode {
+        &self.section
+    }
+    
+    pub fn permissions(&self) -> &Permissions {
+        &self.permissions
+    }
 }
 
 #[cfg(test)]

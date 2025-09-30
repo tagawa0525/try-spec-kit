@@ -43,6 +43,27 @@ impl BusinessTask {
         self.active = false;
         self
     }
+    
+    // Getters
+    pub fn id(&self) -> &TaskId {
+        &self.id
+    }
+    
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+    
+    pub fn department(&self) -> Option<&DeptCode> {
+        self.department.as_ref()
+    }
+    
+    pub fn section(&self) -> Option<&SectionCode> {
+        self.section.as_ref()
+    }
+    
+    pub fn active(&self) -> bool {
+        self.active
+    }
 }
 
 #[cfg(test)]

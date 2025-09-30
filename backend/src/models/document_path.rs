@@ -104,6 +104,55 @@ impl DocumentPath {
         self.deleted = true;
         self.updated_at = Utc::now();
     }
+    
+    // Getters
+    pub fn id(&self) -> &DocumentId {
+        &self.id
+    }
+    
+    pub fn document_number(&self) -> &str {
+        &self.document_number
+    }
+    
+    pub fn document_type(&self) -> &TypeCode {
+        &self.document_type
+    }
+    
+    pub fn department(&self) -> &DeptCode {
+        &self.department
+    }
+    
+    pub fn section(&self) -> &SectionCode {
+        &self.section
+    }
+    
+    pub fn business_task(&self) -> Option<&TaskId> {
+        self.business_task.as_ref()
+    }
+    
+    pub fn user(&self) -> &UserId {
+        &self.user
+    }
+    
+    pub fn file_path(&self) -> &PathBuf {
+        &self.file_path
+    }
+    
+    pub fn created_at(&self) -> &DateTime<Utc> {
+        &self.created_at
+    }
+    
+    pub fn updated_at(&self) -> &DateTime<Utc> {
+        &self.updated_at
+    }
+    
+    pub fn generated(&self) -> bool {
+        self.generated
+    }
+    
+    pub fn deleted(&self) -> bool {
+        self.deleted
+    }
 }
 
 #[cfg(test)]

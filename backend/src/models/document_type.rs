@@ -38,6 +38,27 @@ impl DocumentType {
         self.active = false;
         self
     }
+    
+    // Getters
+    pub fn code(&self) -> &TypeCode {
+        &self.code
+    }
+    
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+    
+    pub fn root_directory(&self) -> &str {
+        &self.root_directory
+    }
+    
+    pub fn generation_rule(&self) -> &PathGenerationRule {
+        &self.generation_rule
+    }
+    
+    pub fn active(&self) -> bool {
+        self.active
+    }
 }
 
 #[cfg(test)]
