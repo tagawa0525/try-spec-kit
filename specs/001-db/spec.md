@@ -79,6 +79,11 @@ When creating this spec from a user prompt:
 ### Session 2025-09-30
 
 - Q: このシステムをどのように利用できるようにしますか？（CLI、ライブラリAPI、両方） → A: 両方（プログラムから利用可能なAPIとユーザーインターフェースの両方を提供）
+
+### Session 2025-10-01
+
+- Q: 非存在のドキュメントIDまたは文書番号を検索した場合、システムはどのように応答すべきですか？ → A: 空の結果を返す（`Ok(None)`または空リストを返し、エラーではなく「見つからない」状態として扱う）
+- Q: ファイルパスがディスク上に実際に存在するかどうかをシステムで追跡する必要がありますか？ → A: オプショナル機能として提供（将来的な拡張として検討、初期実装では不要）
 - Q: このシステムで管理する文書パスの想定数はどのくらいですか？ → A: 中規模（約10,000件）- チームや部門での利用レベル
 - Q: このシステムは複数のユーザーが同時にアクセスすることを想定していますか？ → A: 複数ユーザー（読み取りのみ共有）- 複数ユーザーが同時に閲覧可能だが、更新は排他的
 - Q: 同じファイルパスを複数回登録しようとした場合、システムはどう動作すべきですか？ → A: 文書種類ごとにルールベースでパスを自動生成し、rootディレクトリとパス生成ルールを定義することで一意性を保証
@@ -119,9 +124,9 @@ As a department user, I want to manage document file paths through a flexible ru
 
 - What happens when a duplicate path is added? System MUST prevent duplicates through rule-based path generation
 - How does system handle invalid file paths? System MUST validate path format (absolute paths for Unix/Linux, Windows local drives, and Windows UNC paths) and reject invalid formats
-- What happens when querying a non-existent identifier? [NEEDS CLARIFICATION: Return empty result or error?]
+- What happens when querying a non-existent identifier? System MUST return empty result (`Ok(None)` for single document queries, empty list for search queries) rather than error
 - What happens when multiple users attempt to update the same path simultaneously? System MUST reject concurrent write attempts and notify the user
-- What happens when the path points to a file that no longer exists on disk? [NEEDS CLARIFICATION: Track file existence or just store paths?]
+- What happens when the path points to a file that no longer exists on disk? System does NOT track file existence in initial implementation (path metadata only); file existence validation MAY be added as optional future enhancement
 - What happens when the auto-increment counter reaches its maximum (999 or configured digit limit)? System MUST return an error indicating counter exhaustion and notify administrators. For month-based counters, the counter resets in the next month; for year-based counters, the counter resets in the next year.
 - How does system handle changes to path generation rules for existing documents? System MUST maintain backwards compatibility with previously generated paths (existing documents retain their original numbers)
 - How does system handle cross-platform path differences (Unix/Windows)? System MUST store paths as-is and handle platform-specific formats correctly
@@ -250,7 +255,7 @@ As a department user, I want to manage document file paths through a flexible ru
 - [x] All mandatory sections completed
 
 ### Requirement Completeness
-- [x] No [NEEDS CLARIFICATION] markers remain (2 minor items deferred as low-impact)
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous  
 - [x] Success criteria are measurable
 - [x] Scope is clearly bounded
@@ -273,11 +278,7 @@ As a department user, I want to manage document file paths through a flexible ru
 
 **✅ SUCCESS**: Specification ready for planning phase.
 
-**Clarifications Completed**: 5 questions answered, major ambiguities resolved.
-
-**Remaining Minor Items (Deferred to Planning)**:
-- Non-existent identifier error handling (implementation detail)
-- File existence tracking (operational decision)
+**Clarifications Completed**: All ambiguities resolved across 2 sessions (8 questions total).
 
 **Next Steps**: Run `/plan` command to proceed to implementation planning phase.
 
