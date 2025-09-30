@@ -63,6 +63,7 @@
 
 ### Contract Tests - Document Path API (T011-T017)
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
+**Clarification 2025-10-01**: 非存在ID検索は`Ok(None)`を返す（エラーではない）
 
 - [x] T011 [P] Contract test create_document_auto signature in backend/tests/contract/test_document_path_create_auto.rs
 - [x] T012 [P] Contract test create_document_manual signature in backend/tests/contract/test_document_path_create_manual.rs
@@ -327,6 +328,10 @@ Task: "DocumentDetails component in frontend/src/lib/components/DocumentDetails.
 
 **Status**: Backend implementation complete. All unit tests passing (87/87). Frontend tasks optional.
 
+**Recent Clarifications (2025-10-01)**:
+- ✅ 非存在ID/文書番号検索時の動作: 空の結果を返す（`Ok(None)`または空リスト、エラーなし）
+- ✅ ファイル存在追跡: 初期実装では不要（オプショナル機能として将来検討）
+
 **Completion Summary**:
 - ✅ Phase 3.1 (Setup): 10/10 tasks complete
 - ✅ Phase 3.2 (Tests): 26/26 tasks complete  
@@ -370,6 +375,18 @@ These tasks are deferred to future releases and are not part of the current impl
 **Rationale**: Current implementation assumes pre-authenticated users in hosting environment. External authentication will be added when deployment requirements are finalized.
 
 **Dependencies**: Requires infrastructure decisions (SSO provider choice, LDAP server configuration)
+
+### File Existence Tracking (Optional Enhancement)
+- [ ] T079 Design file existence validation mechanism
+- [ ] T080 Implement periodic file existence checker service
+- [ ] T081 Add file_exists boolean field to DocumentPath model
+- [ ] T082 Create background job for periodic validation
+- [ ] T083 Add metrics for missing files
+- [ ] T084 Add integration tests for file existence tracking
+
+**Rationale (Clarification 2025-10-01)**: Initial implementation stores path metadata only. File existence validation MAY be added as optional future enhancement for operational monitoring.
+
+**Dependencies**: Requires operational requirements (check frequency, notification strategy)
 
 ---
 
