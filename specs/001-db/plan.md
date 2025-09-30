@@ -114,6 +114,46 @@
 
 **Initial Gate Status**: ✅ PASS (1 research item to resolve in Phase 0)
 
+---
+
+## Post-Design Constitution Check
+*Re-evaluated after Phase 1 design completion*
+
+### Technology Decisions Review
+
+**✅ Rust Idioms & Safety (Principle VI)**:
+- sqlx使用: コンパイル時型チェック、非同期対応（憲法原則準拠）
+- Result<T, E>: 全APIで使用（contracts定義済み）
+- 外部依存正当化: sqlx（非同期DB必須）、axum（Web API必須）、serde（標準シリアライゼーション）
+- std優先: PathBuf（UNCパス）、String（UTF-8）使用
+
+**✅ Test-Driven Development (Principle II)**:
+- 契約テスト定義済み: contracts/document_path_api.md, generation_api.md, query_api.md
+- 統合テスト: quickstart.md に10シナリオ定義
+- sqlx::test: DBテスト用マクロ使用予定
+- tests/ディレクトリ構造: contract/, integration/, unit/
+
+**✅ Specification-First (Principle I)**:
+- spec.md完全（明確化セッション完了、39機能要件）
+- 実装詳細なし（axum, sqlx, Svelteは計画段階で決定）
+
+**✅ Template-Driven (Principle III)**:
+- plan-template.md使用
+- research.md, data-model.md, contracts/, quickstart.md生成
+- migrations/ディレクトリ追加（sqlx-cli管理）
+
+**✅ Structured Documentation (Principle IV)**:
+- specs/001-db/構造完全
+- SQLスキーマ定義: data-model.md
+- API契約: contracts/3ファイル
+
+**Complexity Assessment**:
+- 外部依存数: 適切（sqlx, axum, tokio, serde, chrono - すべて正当化済み）
+- フロントエンド分離: 適切（FR-023要件対応）
+- プロジェクト構造: Webアプリ標準（backend/, frontend/）
+
+**Post-Design Gate Status**: ✅ PASS（憲法違反なし、複雑性適切）
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -261,22 +301,125 @@ frontend/
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
 
 
+## Phase 2: Task Planning Approach
+*このセクションは/tasksコマンドによるtasks.md生成の戦略を記述（実行はしない）*
+
+### Task Generation Strategy
+
+**1. Contract-Driven Task Creation**:
+- contracts/の各APIファイル → 個別タスクグループ
+- 例: `document_path_api.md` → 7タスク（create_document_auto, create_document_manual, get_document_by_id, ...）
+- 順序: 契約テスト → 実装 → 統合テスト（TDD原則）
+
+**2. Data Model Task Creation**:
+- data-model.mdの7エンティティ → 個別タスクグループ
+- 例: `DocumentPath構造体` → migrations作成 → Rustモデル実装 → バリデーション実装
+- 順序: マイグレーション → モデル → ビジネスロジック
+
+**3. Test-First Ordering**:
+- TDD原則（憲法Principle II）に従い、各機能ごとに：
+  1. 契約テスト実装（コンパイル時型チェック）
+  2. 統合テストシナリオ実装（quickstart.md参照）
+  3. 本体実装
+  4. パフォーマンス検証
+
+**4. Parallelization Marking**:
+- 独立タスクに`[P]`マーク:
+  - Department, Section, User, BusinessTask, DocumentTypeエンティティは並列化可能
+  - PathGenerationRule, DocumentPathは依存関係あり（順次）
+  - contracts/の契約テスト定義は並列化可能
+  - 本体実装は依存関係に応じて順次
+
+**5. Quickstart Integration**:
+- quickstart.md の10ステップ → 検証タスク:
+  1. DB初期化検証
+  2. 組織構造セットアップ検証
+  3. ユーザー作成検証
+  4. DocumentType定義検証
+  5. 自動生成（AGI2509001）検証
+  6. マルチバイト（りん議I-25009）検証
+  7. クエリ検証
+  8. 論理削除検証
+  9. 並行読み取り検証
+  10. パフォーマンス検証（<10ms）
+
+**6. Task Count Estimate**:
+- データモデル: 7エンティティ × 3タスク（migration, model, validation） = 21タスク
+- API契約: 15関数 × 2タスク（契約テスト, 実装） = 30タスク
+- 統合テスト: 10シナリオ × 1タスク = 10タスク
+- インフラ: 5タスク（DB setup, axum server, Svelte frontend基盤, CI/CD, deployment）
+- **合計推定**: 65-70タスク
+
+**7. Backend/Frontend Split**:
+- Backend（Rust+axum+sqlx）: 55-60タスク
+- Frontend（Svelte+TypeScript）: 10-15タスク
+  - API型定義（OpenAPI生成）
+  - コンポーネント実装（DocumentList, DocumentForm, ...）
+  - ストア実装（Svelte stores）
+  - ルーティング（SvelteKit routes/）
+
+**8. Dependency Chain**:
+```
+migrations (sqlx-cli)
+  └→ models (Rust structs + sqlx::FromRow)
+      └→ storage (DB操作 + sqlx::query!)
+          └→ services (ビジネスロジック)
+              └→ api (axum handlers)
+                  └→ integration tests (quickstart scenarios)
+```
+
+**9. /tasks Command Output Target**:
+- tasks.mdに上記戦略を実行した結果を記述
+- tasks-template.mdに従った構造
+- 各タスク: ID, タイトル, 説明, 受け入れ基準, ステータス, [P]マーク
+- 順序: TDD原則に基づく依存関係順
+
+---
+
 ## Progress Tracking
 *This checklist is updated during execution flow*
 
 **Phase Status**:
-- [ ] Phase 0: Research complete (/plan command)
-- [ ] Phase 1: Design complete (/plan command)
-- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
-- [ ] Phase 3: Tasks generated (/tasks command)
-- [ ] Phase 4: Implementation complete
-- [ ] Phase 5: Validation passed
+- [x] Phase 0: Research complete (/plan command) - 7研究質問解決
+- [x] Phase 1: Design complete (/plan command) - data-model, contracts, quickstart作成
+- [x] Phase 2: Task planning complete (/plan command - describe approach only) - 65-70タスク推定
+- [ ] Phase 3: Tasks generated (/tasks command) - tasks.md生成待ち
+- [ ] Phase 4: Implementation complete - コード実装待ち
+- [ ] Phase 5: Validation passed - 検証待ち
 
 **Gate Status**:
-- [ ] Initial Constitution Check: PASS
-- [ ] Post-Design Constitution Check: PASS
-- [ ] All NEEDS CLARIFICATION resolved
-- [ ] Complexity deviations documented
+- [x] Initial Constitution Check: PASS
+- [x] Post-Design Constitution Check: PASS - 憲法違反なし
+- [x] All NEEDS CLARIFICATION resolved - 8件の明確化完了
+- [x] Complexity deviations documented - すべて正当化済み（sqlx, axum, Svelte）
+
+**Artifact Status**:
+- [x] spec.md - 39機能要件、6エンティティ、8明確化
+- [x] research.md - 7研究質問解決、技術スタック確定
+- [x] data-model.md - 7エンティティ、SQLスキーマ
+- [x] contracts/ - 5契約ファイル（README + 3 API契約）
+- [x] quickstart.md - 10検証シナリオ
+- [x] plan.md - 実装計画（本ドキュメント）
+- [ ] tasks.md - /tasksコマンド待ち
+
+---
+
+## Next Steps
+
+**✅ この計画ドキュメント（plan.md）は完成しました。**
+
+次のコマンドを実行してください：
+
+```bash
+/tasks
+```
+
+`/tasks`コマンドは：
+1. plan.mdのPhase 2戦略を読み込み
+2. tasks-template.mdに従ったtasks.mdを生成
+3. 65-70個の実装タスクを作成（TDD順序）
+4. 並列化可能タスクに[P]マークを付与
+5. 依存関係チェーンを反映
 
 ---
 *Based on Constitution v1.1.0 - See `/memory/constitution.md`*
