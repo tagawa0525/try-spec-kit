@@ -9,13 +9,11 @@ use crate::error::Result;
 
 /// Initialize database connection pool with WAL mode
 pub async fn init_db_pool(database_url: &str) -> Result<SqlitePool> {
-    let mut options = SqliteConnectOptions::from_str(database_url)?
+    let options = SqliteConnectOptions::from_str(database_url)?
         .create_if_missing(true)
         .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)  // Enable WAL mode
-        .busy_timeout(Duration::from_secs(30));
-    
-    // Disable logging for sqlx queries (can be enabled for debugging)
-    options.disable_statement_logging();
+        .busy_timeout(Duration::from_secs(30))
+        .disable_statement_logging();  // Chain this method
 
     let pool = SqlitePoolOptions::new()
         .max_connections(10)

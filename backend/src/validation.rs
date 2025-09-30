@@ -38,7 +38,6 @@ pub fn validate_section_code(code: char) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn test_validate_absolute_path() {

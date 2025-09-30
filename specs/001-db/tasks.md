@@ -64,38 +64,38 @@
 ### Contract Tests - Document Path API (T011-T017)
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
 
-- [ ] T011 [P] Contract test create_document_auto signature in backend/tests/contract/test_document_path_create_auto.rs
-- [ ] T012 [P] Contract test create_document_manual signature in backend/tests/contract/test_document_path_create_manual.rs
-- [ ] T013 [P] Contract test get_document_by_id signature in backend/tests/contract/test_document_path_get_id.rs
-- [ ] T014 [P] Contract test get_document_by_number signature in backend/tests/contract/test_document_path_get_number.rs
-- [ ] T015 [P] Contract test update_document_path signature in backend/tests/contract/test_document_path_update.rs
-- [ ] T016 [P] Contract test delete_document signature in backend/tests/contract/test_document_path_delete.rs
-- [ ] T017 [P] Contract test search_documents signature in backend/tests/contract/test_document_path_search.rs
+- [x] T011 [P] Contract test create_document_auto signature in backend/tests/contract/test_document_path_create_auto.rs
+- [x] T012 [P] Contract test create_document_manual signature in backend/tests/contract/test_document_path_create_manual.rs
+- [x] T013 [P] Contract test get_document_by_id signature in backend/tests/contract/test_document_path_get_id.rs
+- [x] T014 [P] Contract test get_document_by_number signature in backend/tests/contract/test_document_path_get_number.rs
+- [x] T015 [P] Contract test update_document_path signature in backend/tests/contract/test_document_path_update.rs
+- [x] T016 [P] Contract test delete_document signature in backend/tests/contract/test_document_path_delete.rs
+- [x] T017 [P] Contract test search_documents signature in backend/tests/contract/test_document_path_search.rs
 
 ### Contract Tests - Generation API (T018-T020)
-- [ ] T018 [P] Contract test generate_document_number signature in backend/tests/contract/test_generation_generate.rs
-- [ ] T019 [P] Contract test get_next_counter signature in backend/tests/contract/test_generation_counter.rs
-- [ ] T020 [P] Contract test build_scope_key signature in backend/tests/contract/test_generation_scope.rs
+- [x] T018 [P] Contract test generate_document_number signature in backend/tests/contract/test_generation_generate.rs
+- [x] T019 [P] Contract test get_next_counter signature in backend/tests/contract/test_generation_counter.rs
+- [x] T020 [P] Contract test build_scope_key signature in backend/tests/contract/test_generation_scope.rs
 
 ### Contract Tests - Query API (T021-T026)
-- [ ] T021 [P] Contract test get_all_documents signature in backend/tests/contract/test_query_all.rs
-- [ ] T022 [P] Contract test get_documents_by_type signature in backend/tests/contract/test_query_by_type.rs
-- [ ] T023 [P] Contract test get_documents_by_department signature in backend/tests/contract/test_query_by_dept.rs
-- [ ] T024 [P] Contract test get_documents_by_section signature in backend/tests/contract/test_query_by_section.rs
-- [ ] T025 [P] Contract test get_documents_by_task signature in backend/tests/contract/test_query_by_task.rs
-- [ ] T026 [P] Contract test DocumentQuery builder pattern in backend/tests/contract/test_query_builder.rs
+- [x] T021 [P] Contract test get_all_documents signature in backend/tests/contract/test_query_all.rs
+- [x] T022 [P] Contract test get_documents_by_type signature in backend/tests/contract/test_query_by_type.rs
+- [x] T023 [P] Contract test get_documents_by_department signature in backend/tests/contract/test_query_by_dept.rs
+- [x] T024 [P] Contract test get_documents_by_section signature in backend/tests/contract/test_query_by_section.rs
+- [x] T025 [P] Contract test get_documents_by_task signature in backend/tests/contract/test_query_by_task.rs
+- [x] T026 [P] Contract test DocumentQuery builder pattern in backend/tests/contract/test_query_builder.rs
 
 ### Integration Tests - Quickstart Scenarios (T027-T036)
-- [ ] T027 [P] Integration test Step 1: DB initialization in backend/tests/integration/test_quickstart_step1_init.rs
-- [ ] T028 [P] Integration test Step 2: Organization setup in backend/tests/integration/test_quickstart_step2_org.rs
-- [ ] T029 [P] Integration test Step 3: User creation in backend/tests/integration/test_quickstart_step3_user.rs
-- [ ] T030 [P] Integration test Step 4: DocumentType definition in backend/tests/integration/test_quickstart_step4_type.rs
-- [ ] T031 [P] Integration test Step 5: Auto-generate AGI2509001 in backend/tests/integration/test_quickstart_step5_autogen.rs
-- [ ] T032 [P] Integration test Step 6: Multi-byte りん議I-25009 in backend/tests/integration/test_quickstart_step6_multibyte.rs
-- [ ] T033 [P] Integration test Step 7: Query by type in backend/tests/integration/test_quickstart_step7_query.rs
-- [ ] T034 [P] Integration test Step 8: Logical deletion in backend/tests/integration/test_quickstart_step8_delete.rs
-- [ ] T035 [P] Integration test Step 9: Concurrent reads (10 threads) in backend/tests/integration/test_quickstart_step9_concurrent.rs
-- [ ] T036 [P] Integration test Step 10: Performance (<10ms avg) in backend/tests/integration/test_quickstart_step10_performance.rs
+- [x] T027 [P] Integration test Step 1: DB initialization in backend/tests/integration/test_quickstart_step1_init.rs
+- [x] T028 [P] Integration test Step 2: Organization setup in backend/tests/integration/test_quickstart_step2_org.rs
+- [x] T029 [P] Integration test Step 3: User creation in backend/tests/integration/test_quickstart_step3_user.rs
+- [x] T030 [P] Integration test Step 4: DocumentType definition in backend/tests/integration/test_quickstart_step4_type.rs
+- [x] T031 [P] Integration test Step 5: Auto-generate AGI2509001 in backend/tests/integration/test_quickstart_step5_autogen.rs
+- [x] T032 [P] Integration test Step 6: Multi-byte りん議I-25009 in backend/tests/integration/test_quickstart_step6_multibyte.rs
+- [x] T033 [P] Integration test Step 7: Query by type in backend/tests/integration/test_quickstart_step7_query.rs
+- [x] T034 [P] Integration test Step 8: Logical deletion in backend/tests/integration/test_quickstart_step8_delete.rs
+- [x] T035 [P] Integration test Step 9: Concurrent reads (10 threads) in backend/tests/integration/test_quickstart_step9_concurrent.rs
+- [x] T036 [P] Integration test Step 10: Performance (<10ms avg) in backend/tests/integration/test_quickstart_step10_performance.rs
 
 ---
 

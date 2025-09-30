@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|_| "sqlite:./data/documents.db".to_string());
     
     tracing::info!("Connecting to database: {}", database_url);
-    let pool = init_db_pool(&database_url).await?;
+    let _pool = init_db_pool(&database_url).await?;
     tracing::info!("Database initialized with WAL mode");
 
     // Build router
