@@ -8,6 +8,17 @@ use chrono::Utc;
 use sqlx::SqlitePool;
 use std::path::PathBuf;
 
+/// Request parameters for manual document creation
+pub struct ManualDocumentRequest {
+    pub document_number: String,
+    pub type_code: TypeCode,
+    pub dept_code: DeptCode,
+    pub section_code: SectionCode,
+    pub user_id: UserId,
+    pub file_path: PathBuf,
+    pub business_task: Option<TaskId>,
+}
+
 /// Create a document with auto-generated number
 pub async fn create_document_auto(
     pool: &SqlitePool,
@@ -76,50 +87,47 @@ pub async fn create_document_auto(
 /// Create a document with manual number
 pub async fn create_document_manual(
     pool: &SqlitePool,
-    document_number: String,
-    type_code: TypeCode,
-    dept_code: DeptCode,
-    section_code: SectionCode,
-    user_id: UserId,
-    file_path: PathBuf,
-    business_task: Option<TaskId>,
+    request: ManualDocumentRequest,
 ) -> Result<DocumentPath> {
     // Validate file path is absolute
-    if !file_path.is_absolute() {
+    if !request.file_path.is_absolute() {
         return Err(crate::error::Error::Validation(
             "File path must be absolute".to_string(),
         ));
     }
 
     // Validate document number is not empty
-    if document_number.trim().is_empty() {
+    if request.document_number.trim().is_empty() {
         return Err(crate::error::Error::Validation(
             "Document number cannot be empty".to_string(),
         ));
     }
 
     // Check if document type exists
-    let doc_type = document_type::get_document_type(pool, &type_code)
+    let doc_type = document_type::get_document_type(pool, &request.type_code)
         .await?
         .ok_or_else(|| {
-            crate::error::Error::NotFound(format!("Document type '{}' not found", type_code.0))
+            crate::error::Error::NotFound(format!(
+                "Document type '{}' not found",
+                request.type_code.0
+            ))
         })?;
 
     // Check if document type is active
     if !doc_type.active {
         return Err(crate::error::Error::Validation(format!(
             "Document type '{}' is not active",
-            type_code.0
+            request.type_code.0
         )));
     }
 
     // Check if document number already exists
     if let Some(_existing) =
-        document_path::get_document_path_by_number(pool, &document_number).await?
+        document_path::get_document_path_by_number(pool, &request.document_number).await?
     {
         return Err(crate::error::Error::Validation(format!(
             "Document number '{}' already exists",
-            document_number
+            request.document_number
         )));
     }
 
@@ -127,13 +135,13 @@ pub async fn create_document_manual(
     let now = Utc::now();
     let doc = DocumentPath {
         id: DocumentId::new(uuid::Uuid::new_v4().to_string()),
-        document_number,
-        document_type: type_code,
-        department: dept_code,
-        section: section_code,
-        business_task,
-        user: user_id,
-        file_path,
+        document_number: request.document_number,
+        document_type: request.type_code,
+        department: request.dept_code,
+        section: request.section_code,
+        business_task: request.business_task,
+        user: request.user_id,
+        file_path: request.file_path,
         created_at: now,
         updated_at: now,
         generated: false,
@@ -277,13 +285,15 @@ mod tests {
 
         let doc = create_document_manual(
             &pool,
-            "MANUAL-001".to_string(),
-            TypeCode::new("A"),
-            DeptCode::new('G'),
-            SectionCode::new('I'),
-            UserId::new("user001"),
-            PathBuf::from("/docs/contracts/manual.pdf"),
-            None,
+            ManualDocumentRequest {
+                document_number: "MANUAL-001".to_string(),
+                type_code: TypeCode::new("A"),
+                dept_code: DeptCode::new('G'),
+                section_code: SectionCode::new('I'),
+                user_id: UserId::new("user001"),
+                file_path: PathBuf::from("/docs/contracts/manual.pdf"),
+                business_task: None,
+            },
         )
         .await?;
 

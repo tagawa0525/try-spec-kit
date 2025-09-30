@@ -94,19 +94,19 @@ pub async fn list_document_types(pool: &SqlitePool) -> Result<Vec<DocumentType>>
 
     let doc_types = rows
         .into_iter()
-        .filter_map(|r| {
+        .map(|r| {
             let generation_rule = r
                 .rule_components
                 .and_then(|json| serde_json::from_str::<PathGenerationRule>(&json).ok())
                 .unwrap_or_else(PathGenerationRule::example_agi);
 
-            Some(DocumentType {
+            DocumentType {
                 code: TypeCode::new(r.code),
                 description: r.description,
                 root_directory: r.root_directory,
                 generation_rule,
                 active: r.active != 0,
-            })
+            }
         })
         .collect();
 
@@ -130,19 +130,19 @@ pub async fn list_active_document_types(pool: &SqlitePool) -> Result<Vec<Documen
 
     let doc_types = rows
         .into_iter()
-        .filter_map(|r| {
+        .map(|r| {
             let generation_rule = r
                 .rule_components
                 .and_then(|json| serde_json::from_str::<PathGenerationRule>(&json).ok())
                 .unwrap_or_else(PathGenerationRule::example_agi);
 
-            Some(DocumentType {
+            DocumentType {
                 code: TypeCode::new(r.code),
                 description: r.description,
                 root_directory: r.root_directory,
                 generation_rule,
                 active: r.active != 0,
-            })
+            }
         })
         .collect();
 

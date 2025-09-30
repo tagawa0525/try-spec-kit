@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use super::create_auto::CreateDocumentResponse;
 use crate::error::Result;
 use crate::models::{DeptCode, SectionCode, TaskId, TypeCode, UserId};
-use crate::services::document_service;
+use crate::services::document_service::{self, ManualDocumentRequest};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateDocumentManualRequest {
@@ -30,13 +30,15 @@ pub async fn create_document_manual(
 
     let doc = document_service::create_document_manual(
         &pool,
-        req.document_number,
-        TypeCode::new(&req.type_code),
-        DeptCode::new(req.dept_code),
-        SectionCode::new(req.section_code),
-        UserId::new(&req.user_id),
-        file_path,
-        req.business_task.map(|t| TaskId::new(&t)),
+        ManualDocumentRequest {
+            document_number: req.document_number,
+            type_code: TypeCode::new(&req.type_code),
+            dept_code: DeptCode::new(req.dept_code),
+            section_code: SectionCode::new(req.section_code),
+            user_id: UserId::new(&req.user_id),
+            file_path,
+            business_task: req.business_task.map(|t| TaskId::new(&t)),
+        },
     )
     .await?;
 
