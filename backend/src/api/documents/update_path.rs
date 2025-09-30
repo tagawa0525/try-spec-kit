@@ -1,14 +1,17 @@
 //! PUT /api/documents/:id/path
 
-use axum::{extract::{Path, State}, Json};
+use axum::{
+    Json,
+    extract::{Path, State},
+};
 use serde::Deserialize;
 use sqlx::SqlitePool;
 use std::path::PathBuf;
 
+use super::create_auto::CreateDocumentResponse;
 use crate::error::Result;
 use crate::models::DocumentId;
 use crate::services::document_service;
-use super::create_auto::CreateDocumentResponse;
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateDocumentPathRequest {
@@ -22,14 +25,10 @@ pub async fn update_document_path(
     Json(req): Json<UpdateDocumentPathRequest>,
 ) -> Result<Json<CreateDocumentResponse>> {
     let file_path = PathBuf::from(&req.file_path);
-    
-    let doc = document_service::update_document_path(
-        &pool,
-        &DocumentId::new(&id),
-        file_path,
-    )
-    .await?;
-    
+
+    let doc =
+        document_service::update_document_path(&pool, &DocumentId::new(&id), file_path).await?;
+
     Ok(Json(doc.into()))
 }
 
@@ -40,10 +39,7 @@ mod tests {
     #[tokio::test]
     async fn test_update_document_path_signature() {
         // Compile-time type check
-        let _: fn(
-            State<SqlitePool>,
-            Path<String>,
-            Json<UpdateDocumentPathRequest>,
-        ) -> _ = update_document_path;
+        let _: fn(State<SqlitePool>, Path<String>, Json<UpdateDocumentPathRequest>) -> _ =
+            update_document_path;
     }
 }

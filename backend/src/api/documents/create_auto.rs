@@ -1,12 +1,12 @@
 //! POST /api/documents (auto-generated)
 
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::path::PathBuf;
 
 use crate::error::Result;
-use crate::models::{DocumentPath, TypeCode, DeptCode, SectionCode, UserId, TaskId};
+use crate::models::{DeptCode, DocumentPath, SectionCode, TaskId, TypeCode, UserId};
 use crate::services::document_service;
 
 #[derive(Debug, Deserialize)]
@@ -60,7 +60,7 @@ pub async fn create_document_auto(
     Json(req): Json<CreateDocumentAutoRequest>,
 ) -> Result<(StatusCode, Json<CreateDocumentResponse>)> {
     let file_path = PathBuf::from(&req.file_path);
-    
+
     let doc = document_service::create_document_auto(
         &pool,
         TypeCode::new(&req.type_code),
@@ -71,7 +71,7 @@ pub async fn create_document_auto(
         req.business_task.map(|t| TaskId::new(&t)),
     )
     .await?;
-    
+
     Ok((StatusCode::CREATED, Json(doc.into())))
 }
 
@@ -82,9 +82,6 @@ mod tests {
     #[tokio::test]
     async fn test_create_document_auto_signature() {
         // Compile-time type check
-        let _: fn(
-            State<SqlitePool>,
-            Json<CreateDocumentAutoRequest>,
-        ) -> _ = create_document_auto;
+        let _: fn(State<SqlitePool>, Json<CreateDocumentAutoRequest>) -> _ = create_document_auto;
     }
 }

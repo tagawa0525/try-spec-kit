@@ -1,7 +1,7 @@
 //! Department entity
 
-use serde::{Deserialize, Serialize};
 use crate::models::{DeptCode, SectionCode};
+use serde::{Deserialize, Serialize};
 
 /// Department (部門)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -33,16 +33,16 @@ impl Department {
             self.sections.push(section);
         }
     }
-    
+
     // Getters
     pub fn code(&self) -> &DeptCode {
         &self.code
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn sections(&self) -> &[SectionCode] {
         &self.sections
     }

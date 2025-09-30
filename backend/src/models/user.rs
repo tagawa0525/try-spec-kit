@@ -1,7 +1,7 @@
 //! User entity
 
+use crate::models::{DeptCode, Permissions, SectionCode, UserId};
 use serde::{Deserialize, Serialize};
-use crate::models::{DeptCode, SectionCode, UserId, Permissions};
 
 /// User (ユーザー)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -38,24 +38,24 @@ impl User {
         self.permissions = permissions;
         self
     }
-    
+
     // Getters
     pub fn id(&self) -> &UserId {
         &self.id
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn department(&self) -> &DeptCode {
         &self.department
     }
-    
+
     pub fn section(&self) -> &SectionCode {
         &self.section
     }
-    
+
     pub fn permissions(&self) -> &Permissions {
         &self.permissions
     }
@@ -77,8 +77,7 @@ mod tests {
 
     #[test]
     fn test_user_with_permissions() {
-        let user = User::new("user001", "Admin", 'G', 'I')
-            .with_permissions(Permissions::all());
+        let user = User::new("user001", "Admin", 'G', 'I').with_permissions(Permissions::all());
         assert!(user.permissions.can_delete);
     }
 }

@@ -1,13 +1,13 @@
 //! Department storage operations
 
-use sqlx::SqlitePool;
 use crate::error::Result;
 use crate::models::{Department, DeptCode, SectionCode};
+use sqlx::SqlitePool;
 
 /// Create a new department
 pub async fn create_department(pool: &SqlitePool, dept: &Department) -> Result<()> {
     let code = dept.code.0.to_string();
-    
+
     sqlx::query!(
         r#"
         INSERT INTO departments (code, name)
@@ -25,7 +25,7 @@ pub async fn create_department(pool: &SqlitePool, dept: &Department) -> Result<(
 /// Get a department by code
 pub async fn get_department(pool: &SqlitePool, code: &DeptCode) -> Result<Option<Department>> {
     let code_str = code.0.to_string();
-    
+
     let row = sqlx::query!(
         r#"
         SELECT code, name
@@ -41,10 +41,10 @@ pub async fn get_department(pool: &SqlitePool, code: &DeptCode) -> Result<Option
         Some(r) => {
             let code_char = r.code.chars().next().unwrap_or('?');
             let dept_code = DeptCode::new(code_char);
-            
+
             // Get associated sections
             let sections = get_department_sections(pool, &dept_code).await?;
-            
+
             Ok(Some(Department {
                 code: dept_code,
                 name: r.name,
@@ -56,9 +56,12 @@ pub async fn get_department(pool: &SqlitePool, code: &DeptCode) -> Result<Option
 }
 
 /// Get all sections for a department
-async fn get_department_sections(pool: &SqlitePool, dept_code: &DeptCode) -> Result<Vec<SectionCode>> {
+async fn get_department_sections(
+    pool: &SqlitePool,
+    dept_code: &DeptCode,
+) -> Result<Vec<SectionCode>> {
     let code_str = dept_code.0.to_string();
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT code
@@ -96,7 +99,7 @@ pub async fn list_departments(pool: &SqlitePool) -> Result<Vec<Department>> {
         let code_char = row.code.chars().next().unwrap_or('?');
         let dept_code = DeptCode::new(code_char);
         let sections = get_department_sections(pool, &dept_code).await?;
-        
+
         departments.push(Department {
             code: dept_code,
             name: row.name,
@@ -110,7 +113,7 @@ pub async fn list_departments(pool: &SqlitePool) -> Result<Vec<Department>> {
 /// Update a department
 pub async fn update_department(pool: &SqlitePool, dept: &Department) -> Result<()> {
     let code = dept.code.0.to_string();
-    
+
     sqlx::query!(
         r#"
         UPDATE departments
@@ -129,7 +132,7 @@ pub async fn update_department(pool: &SqlitePool, dept: &Department) -> Result<(
 /// Delete a department
 pub async fn delete_department(pool: &SqlitePool, code: &DeptCode) -> Result<()> {
     let code_str = code.0.to_string();
-    
+
     sqlx::query!(
         r#"
         DELETE FROM departments
@@ -151,10 +154,10 @@ mod tests {
     #[tokio::test]
     async fn test_create_and_get_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let dept = Department::new('G', "総務");
         create_department(&pool, &dept).await?;
-        
+
         let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
         assert!(retrieved.is_some());
         if let Some(d) = retrieved {
@@ -166,12 +169,12 @@ mod tests {
     #[tokio::test]
     async fn test_list_departments() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let dept1 = Department::new('G', "総務");
         let dept2 = Department::new('K', "分析");
         create_department(&pool, &dept1).await?;
         create_department(&pool, &dept2).await?;
-        
+
         let list = list_departments(&pool).await?;
         assert_eq!(list.len(), 2);
         Ok(())
@@ -180,13 +183,13 @@ mod tests {
     #[tokio::test]
     async fn test_update_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let mut dept = Department::new('G', "総務");
         create_department(&pool, &dept).await?;
-        
+
         dept.name = "総務部".to_string();
         update_department(&pool, &dept).await?;
-        
+
         let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
         if let Some(d) = retrieved {
             assert_eq!(d.name, "総務部");
@@ -197,12 +200,12 @@ mod tests {
     #[tokio::test]
     async fn test_delete_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let dept = Department::new('G', "総務");
         create_department(&pool, &dept).await?;
-        
+
         delete_department(&pool, &DeptCode::new('G')).await?;
-        
+
         let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
         assert!(retrieved.is_none());
         Ok(())

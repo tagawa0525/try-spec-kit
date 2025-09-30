@@ -1,7 +1,7 @@
 //! Input validation utilities
 
-use std::path::Path;
 use crate::error::{Error, Result};
+use std::path::Path;
 
 /// Validate that a path is absolute
 pub fn validate_absolute_path(path: &Path) -> Result<()> {

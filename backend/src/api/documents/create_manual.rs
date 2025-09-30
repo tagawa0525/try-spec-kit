@@ -1,14 +1,14 @@
 //! POST /api/documents/manual
 
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 use serde::Deserialize;
 use sqlx::SqlitePool;
 use std::path::PathBuf;
 
-use crate::error::Result;
-use crate::models::{TypeCode, DeptCode, SectionCode, UserId, TaskId};
-use crate::services::document_service;
 use super::create_auto::CreateDocumentResponse;
+use crate::error::Result;
+use crate::models::{DeptCode, SectionCode, TaskId, TypeCode, UserId};
+use crate::services::document_service;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateDocumentManualRequest {
@@ -27,7 +27,7 @@ pub async fn create_document_manual(
     Json(req): Json<CreateDocumentManualRequest>,
 ) -> Result<(StatusCode, Json<CreateDocumentResponse>)> {
     let file_path = PathBuf::from(&req.file_path);
-    
+
     let doc = document_service::create_document_manual(
         &pool,
         req.document_number,
@@ -39,7 +39,7 @@ pub async fn create_document_manual(
         req.business_task.map(|t| TaskId::new(&t)),
     )
     .await?;
-    
+
     Ok((StatusCode::CREATED, Json(doc.into())))
 }
 
@@ -50,9 +50,7 @@ mod tests {
     #[tokio::test]
     async fn test_create_document_manual_signature() {
         // Compile-time type check
-        let _: fn(
-            State<SqlitePool>,
-            Json<CreateDocumentManualRequest>,
-        ) -> _ = create_document_manual;
+        let _: fn(State<SqlitePool>, Json<CreateDocumentManualRequest>) -> _ =
+            create_document_manual;
     }
 }

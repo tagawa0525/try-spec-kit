@@ -1,7 +1,7 @@
 //! Database storage initialization and configuration
 
-use sqlx::sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions};
 use sqlx::ConnectOptions;
+use sqlx::sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions};
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -11,9 +11,9 @@ use crate::error::Result;
 pub async fn init_db_pool(database_url: &str) -> Result<SqlitePool> {
     let options = SqliteConnectOptions::from_str(database_url)?
         .create_if_missing(true)
-        .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)  // Enable WAL mode
+        .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal) // Enable WAL mode
         .busy_timeout(Duration::from_secs(30))
-        .disable_statement_logging();  // Chain this method
+        .disable_statement_logging(); // Chain this method
 
     let pool = SqlitePoolOptions::new()
         .max_connections(10)
@@ -22,9 +22,7 @@ pub async fn init_db_pool(database_url: &str) -> Result<SqlitePool> {
         .await?;
 
     // Run migrations
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await?;
+    sqlx::migrate!("./migrations").run(&pool).await?;
 
     Ok(pool)
 }

@@ -1,10 +1,10 @@
 //! Document Path storage operations
 
-use sqlx::SqlitePool;
-use chrono::{DateTime, Utc};
-use std::path::PathBuf;
 use crate::error::Result;
-use crate::models::{DocumentPath, DocumentId, TypeCode, DeptCode, SectionCode, TaskId, UserId};
+use crate::models::{DeptCode, DocumentId, DocumentPath, SectionCode, TaskId, TypeCode, UserId};
+use chrono::{DateTime, Utc};
+use sqlx::SqlitePool;
+use std::path::PathBuf;
 
 /// Create a new document path
 pub async fn create_document_path(pool: &SqlitePool, doc: &DocumentPath) -> Result<()> {
@@ -16,7 +16,7 @@ pub async fn create_document_path(pool: &SqlitePool, doc: &DocumentPath) -> Resu
     let updated_at = doc.updated_at.to_rfc3339();
     let generated = doc.generated as i32;
     let deleted = doc.deleted as i32;
-    
+
     sqlx::query!(
         r#"
         INSERT INTO documents (
@@ -62,7 +62,7 @@ pub async fn get_document_path(pool: &SqlitePool, id: &DocumentId) -> Result<Opt
         Some(r) => {
             let dept_char = r.department_code.chars().next().unwrap_or('?');
             let section_char = r.section_code.chars().next().unwrap_or('?');
-            
+
             Ok(Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -87,7 +87,10 @@ pub async fn get_document_path(pool: &SqlitePool, id: &DocumentId) -> Result<Opt
 }
 
 /// Get a document path by document number
-pub async fn get_document_path_by_number(pool: &SqlitePool, number: &str) -> Result<Option<DocumentPath>> {
+pub async fn get_document_path_by_number(
+    pool: &SqlitePool,
+    number: &str,
+) -> Result<Option<DocumentPath>> {
     let row = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -104,7 +107,7 @@ pub async fn get_document_path_by_number(pool: &SqlitePool, number: &str) -> Res
         Some(r) => {
             let dept_char = r.department_code.chars().next().unwrap_or('?');
             let section_char = r.section_code.chars().next().unwrap_or('?');
-            
+
             Ok(Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -129,9 +132,12 @@ pub async fn get_document_path_by_number(pool: &SqlitePool, number: &str) -> Res
 }
 
 /// List all document paths (including deleted)
-pub async fn list_document_paths(pool: &SqlitePool, include_deleted: bool) -> Result<Vec<DocumentPath>> {
+pub async fn list_document_paths(
+    pool: &SqlitePool,
+    include_deleted: bool,
+) -> Result<Vec<DocumentPath>> {
     let deleted_filter = if include_deleted { 1 } else { 0 };
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -150,7 +156,7 @@ pub async fn list_document_paths(pool: &SqlitePool, include_deleted: bool) -> Re
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -176,10 +182,14 @@ pub async fn list_document_paths(pool: &SqlitePool, include_deleted: bool) -> Re
 }
 
 /// Update a document path (only file_path can be updated)
-pub async fn update_document_path(pool: &SqlitePool, id: &DocumentId, new_path: PathBuf) -> Result<()> {
+pub async fn update_document_path(
+    pool: &SqlitePool,
+    id: &DocumentId,
+    new_path: PathBuf,
+) -> Result<()> {
     let file_path_str = new_path.to_string_lossy().to_string();
     let now = Utc::now().to_rfc3339();
-    
+
     sqlx::query!(
         r#"
         UPDATE documents
@@ -199,7 +209,7 @@ pub async fn update_document_path(pool: &SqlitePool, id: &DocumentId, new_path: 
 /// Logically delete a document path
 pub async fn delete_document_path(pool: &SqlitePool, id: &DocumentId) -> Result<()> {
     let now = Utc::now().to_rfc3339();
-    
+
     sqlx::query!(
         r#"
         UPDATE documents
@@ -218,7 +228,7 @@ pub async fn delete_document_path(pool: &SqlitePool, id: &DocumentId) -> Result<
 /// Restore a logically deleted document path
 pub async fn restore_document_path(pool: &SqlitePool, id: &DocumentId) -> Result<()> {
     let now = Utc::now().to_rfc3339();
-    
+
     sqlx::query!(
         r#"
         UPDATE documents
@@ -237,15 +247,15 @@ pub async fn restore_document_path(pool: &SqlitePool, id: &DocumentId) -> Result
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::{Department, DocumentType, PathGenerationRule, Section, User};
     use crate::storage::db::init_db_pool;
-    use crate::storage::{department, section, user, document_type};
-    use crate::models::{Department, Section, User, DocumentType, PathGenerationRule};
+    use crate::storage::{department, document_type, section, user};
 
     async fn setup_test_data(pool: &SqlitePool) -> Result<()> {
         // Create department
         let dept = Department::new('G', "総務");
         department::create_department(pool, &dept).await?;
-        
+
         // Create section
         let sec = Section {
             code: SectionCode::new('I'),
@@ -253,11 +263,11 @@ mod tests {
             department: DeptCode::new('G'),
         };
         section::create_section(pool, &sec).await?;
-        
+
         // Create user
         let u = User::new("user001", "田川太郎", 'G', 'I');
         user::create_user(pool, &u).await?;
-        
+
         // Create document type
         let rule = PathGenerationRule::example_agi();
         let doc_type = DocumentType::new("A", "契約書", "/docs/contracts/", rule);
@@ -269,7 +279,7 @@ mod tests {
     async fn test_create_and_get_document_path() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let doc = DocumentPath::new_auto(
             "AGI-2509001",
             TypeCode::new("A"),
@@ -278,9 +288,9 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
-        
+
         create_document_path(&pool, &doc).await?;
-        
+
         let retrieved = get_document_path(&pool, &doc.id).await?;
         assert!(retrieved.is_some());
         if let Some(doc) = retrieved {
@@ -293,7 +303,7 @@ mod tests {
     async fn test_get_document_path_by_number() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let doc = DocumentPath::new_auto(
             "AGI-2509001",
             TypeCode::new("A"),
@@ -302,9 +312,9 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
-        
+
         create_document_path(&pool, &doc).await?;
-        
+
         let retrieved = get_document_path_by_number(&pool, "AGI-2509001").await?;
         assert!(retrieved.is_some());
         if let Some(retrieved_doc) = retrieved {
@@ -317,7 +327,7 @@ mod tests {
     async fn test_logical_deletion() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let doc = DocumentPath::new_auto(
             "AGI-2509001",
             TypeCode::new("A"),
@@ -326,28 +336,30 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/test.pdf"),
         );
-        
+
         create_document_path(&pool, &doc).await?;
-        
+
         // Delete
         delete_document_path(&pool, &doc.id).await?;
-        
-        let retrieved = get_document_path(&pool, &doc.id).await?
+
+        let retrieved = get_document_path(&pool, &doc.id)
+            .await?
             .ok_or_else(|| crate::error::Error::NotFound("Document not found".to_string()))?;
         assert!(retrieved.deleted);
-        
+
         // Should not appear in non-deleted list
         let list = list_document_paths(&pool, false).await?;
         assert_eq!(list.len(), 0);
-        
+
         // Should appear in full list
         let full_list = list_document_paths(&pool, true).await?;
         assert_eq!(full_list.len(), 1);
-        
+
         // Restore
         restore_document_path(&pool, &doc.id).await?;
-        
-        let restored = get_document_path(&pool, &doc.id).await?
+
+        let restored = get_document_path(&pool, &doc.id)
+            .await?
             .ok_or_else(|| crate::error::Error::NotFound("Document not found".to_string()))?;
         assert!(!restored.deleted);
         Ok(())
@@ -357,7 +369,7 @@ mod tests {
     async fn test_update_document_path() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let doc = DocumentPath::new_auto(
             "AGI-2509001",
             TypeCode::new("A"),
@@ -366,13 +378,14 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/old/path.pdf"),
         );
-        
+
         create_document_path(&pool, &doc).await?;
-        
+
         let new_path = PathBuf::from("/new/path.pdf");
         update_document_path(&pool, &doc.id, new_path.clone()).await?;
-        
-        let updated = get_document_path(&pool, &doc.id).await?
+
+        let updated = get_document_path(&pool, &doc.id)
+            .await?
             .ok_or_else(|| crate::error::Error::NotFound("Document not found".to_string()))?;
         assert_eq!(updated.file_path, new_path);
         Ok(())

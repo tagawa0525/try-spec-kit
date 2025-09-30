@@ -1,14 +1,14 @@
 //! Section storage operations
 
-use sqlx::SqlitePool;
 use crate::error::Result;
-use crate::models::{Section, SectionCode, DeptCode};
+use crate::models::{DeptCode, Section, SectionCode};
+use sqlx::SqlitePool;
 
 /// Create a new section
 pub async fn create_section(pool: &SqlitePool, section: &Section) -> Result<()> {
     let code = section.code.0.to_string();
     let dept_code = section.department.0.to_string();
-    
+
     sqlx::query!(
         r#"
         INSERT INTO sections (code, name, department_code)
@@ -27,7 +27,7 @@ pub async fn create_section(pool: &SqlitePool, section: &Section) -> Result<()> 
 /// Get a section by code
 pub async fn get_section(pool: &SqlitePool, code: &SectionCode) -> Result<Option<Section>> {
     let code_str = code.0.to_string();
-    
+
     let row = sqlx::query!(
         r#"
         SELECT code, name, department_code
@@ -43,7 +43,7 @@ pub async fn get_section(pool: &SqlitePool, code: &SectionCode) -> Result<Option
         Some(r) => {
             let code_char = r.code.chars().next().unwrap_or('?');
             let dept_char = r.department_code.chars().next().unwrap_or('?');
-            
+
             Ok(Some(Section {
                 code: SectionCode::new(code_char),
                 name: r.name,
@@ -83,9 +83,12 @@ pub async fn list_sections(pool: &SqlitePool) -> Result<Vec<Section>> {
 }
 
 /// List sections by department
-pub async fn list_sections_by_department(pool: &SqlitePool, dept_code: &DeptCode) -> Result<Vec<Section>> {
+pub async fn list_sections_by_department(
+    pool: &SqlitePool,
+    dept_code: &DeptCode,
+) -> Result<Vec<Section>> {
     let dept_code_str = dept_code.0.to_string();
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT code, name, department_code
@@ -118,7 +121,7 @@ pub async fn list_sections_by_department(pool: &SqlitePool, dept_code: &DeptCode
 pub async fn update_section(pool: &SqlitePool, section: &Section) -> Result<()> {
     let dept_code_str = section.department.0.to_string();
     let code_str = section.code.0.to_string();
-    
+
     sqlx::query!(
         r#"
         UPDATE sections
@@ -138,7 +141,7 @@ pub async fn update_section(pool: &SqlitePool, section: &Section) -> Result<()> 
 /// Delete a section
 pub async fn delete_section(pool: &SqlitePool, code: &SectionCode) -> Result<()> {
     let code_str = code.0.to_string();
-    
+
     sqlx::query!(
         r#"
         DELETE FROM sections
@@ -161,18 +164,18 @@ mod tests {
     #[tokio::test]
     async fn test_create_and_get_section() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         // Create department first
         let dept = crate::models::Department::new('G', "総務");
         department::create_department(&pool, &dept).await?;
-        
+
         let section = Section {
             code: SectionCode::new('I'),
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
         create_section(&pool, &section).await?;
-        
+
         let retrieved = get_section(&pool, &SectionCode::new('I')).await?;
         assert!(retrieved.is_some());
         if let Some(sec) = retrieved {
@@ -184,11 +187,11 @@ mod tests {
     #[tokio::test]
     async fn test_list_sections_by_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         // Create department
         let dept = crate::models::Department::new('G', "総務");
         department::create_department(&pool, &dept).await?;
-        
+
         // Create sections
         let section1 = Section {
             code: SectionCode::new('I'),
@@ -202,7 +205,7 @@ mod tests {
         };
         create_section(&pool, &section1).await?;
         create_section(&pool, &section2).await?;
-        
+
         let list = list_sections_by_department(&pool, &DeptCode::new('G')).await?;
         assert_eq!(list.len(), 2);
         Ok(())

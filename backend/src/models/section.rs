@@ -1,7 +1,7 @@
 //! Section entity
 
-use serde::{Deserialize, Serialize};
 use crate::models::{DeptCode, SectionCode};
+use serde::{Deserialize, Serialize};
 
 /// Section (課)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -22,16 +22,16 @@ impl Section {
             department: DeptCode::new(department),
         }
     }
-    
+
     // Getters
     pub fn code(&self) -> &SectionCode {
         &self.code
     }
-    
+
     pub fn name(&self) -> &str {
         &self.name
     }
-    
+
     pub fn department(&self) -> &DeptCode {
         &self.department
     }

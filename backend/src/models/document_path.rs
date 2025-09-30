@@ -1,9 +1,9 @@
 //! Document Path entity
 
+use crate::models::{DeptCode, DocumentId, SectionCode, TaskId, TypeCode, UserId};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use chrono::{DateTime, Utc};
-use crate::models::{DocumentId, TypeCode, DeptCode, SectionCode, TaskId, UserId};
 
 /// Document Path (文書パス)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -104,52 +104,52 @@ impl DocumentPath {
         self.deleted = true;
         self.updated_at = Utc::now();
     }
-    
+
     // Getters
     pub fn id(&self) -> &DocumentId {
         &self.id
     }
-    
+
     pub fn document_number(&self) -> &str {
         &self.document_number
     }
-    
+
     pub fn document_type(&self) -> &TypeCode {
         &self.document_type
     }
-    
+
     pub fn department(&self) -> &DeptCode {
         &self.department
     }
-    
+
     pub fn section(&self) -> &SectionCode {
         &self.section
     }
-    
+
     pub fn business_task(&self) -> Option<&TaskId> {
         self.business_task.as_ref()
     }
-    
+
     pub fn user(&self) -> &UserId {
         &self.user
     }
-    
+
     pub fn file_path(&self) -> &PathBuf {
         &self.file_path
     }
-    
+
     pub fn created_at(&self) -> &DateTime<Utc> {
         &self.created_at
     }
-    
+
     pub fn updated_at(&self) -> &DateTime<Utc> {
         &self.updated_at
     }
-    
+
     pub fn generated(&self) -> bool {
         self.generated
     }
-    
+
     pub fn deleted(&self) -> bool {
         self.deleted
     }
@@ -221,9 +221,9 @@ mod tests {
 
         let old_updated_at = doc.updated_at;
         std::thread::sleep(std::time::Duration::from_millis(10));
-        
+
         doc.update_path(PathBuf::from("/new/path.pdf"));
-        
+
         assert_eq!(doc.file_path, PathBuf::from("/new/path.pdf"));
         assert!(doc.updated_at > old_updated_at);
     }

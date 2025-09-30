@@ -1,7 +1,7 @@
 //! Document Type entity
 
+use crate::models::{PathGenerationRule, TypeCode};
 use serde::{Deserialize, Serialize};
-use crate::models::{TypeCode, PathGenerationRule};
 
 /// Document Type (文書種類)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -38,24 +38,24 @@ impl DocumentType {
         self.active = false;
         self
     }
-    
+
     // Getters
     pub fn code(&self) -> &TypeCode {
         &self.code
     }
-    
+
     pub fn description(&self) -> &str {
         &self.description
     }
-    
+
     pub fn root_directory(&self) -> &str {
         &self.root_directory
     }
-    
+
     pub fn generation_rule(&self) -> &PathGenerationRule {
         &self.generation_rule
     }
-    
+
     pub fn active(&self) -> bool {
         self.active
     }
@@ -69,7 +69,7 @@ mod tests {
     fn test_document_type_new() {
         let rule = PathGenerationRule::example_agi();
         let doc_type = DocumentType::new("A", "契約書", "/docs/contracts/", rule);
-        
+
         assert_eq!(doc_type.code.0, "A");
         assert_eq!(doc_type.description, "契約書");
         assert_eq!(doc_type.root_directory, "/docs/contracts/");
@@ -80,7 +80,7 @@ mod tests {
     fn test_document_type_multibyte_code() {
         let rule = PathGenerationRule::example_ringi();
         let doc_type = DocumentType::new("りん議", "稟議書", "/docs/ringi/", rule);
-        
+
         assert_eq!(doc_type.code.0, "りん議");
         assert_eq!(doc_type.description, "稟議書");
     }

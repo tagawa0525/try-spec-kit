@@ -1,15 +1,18 @@
 //! Query operations for document paths
 
-use sqlx::SqlitePool;
-use chrono::{DateTime, Utc};
-use std::path::PathBuf;
 use crate::error::Result;
-use crate::models::{DocumentPath, DocumentId, TypeCode, DeptCode, SectionCode, TaskId, UserId};
+use crate::models::{DeptCode, DocumentId, DocumentPath, SectionCode, TaskId, TypeCode, UserId};
+use chrono::{DateTime, Utc};
+use sqlx::SqlitePool;
+use std::path::PathBuf;
 
 /// Get all documents (respects deleted flag by default)
-pub async fn get_all_documents(pool: &SqlitePool, include_deleted: bool) -> Result<Vec<DocumentPath>> {
+pub async fn get_all_documents(
+    pool: &SqlitePool,
+    include_deleted: bool,
+) -> Result<Vec<DocumentPath>> {
     let deleted_filter = if include_deleted { 1 } else { 0 };
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -28,7 +31,7 @@ pub async fn get_all_documents(pool: &SqlitePool, include_deleted: bool) -> Resu
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -60,7 +63,7 @@ pub async fn get_documents_by_type(
     include_deleted: bool,
 ) -> Result<Vec<DocumentPath>> {
     let deleted_filter = if include_deleted { 1 } else { 0 };
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -80,7 +83,7 @@ pub async fn get_documents_by_type(
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -113,7 +116,7 @@ pub async fn get_documents_by_department(
 ) -> Result<Vec<DocumentPath>> {
     let dept_code_str = dept_code.0.to_string();
     let deleted_filter = if include_deleted { 1 } else { 0 };
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -133,7 +136,7 @@ pub async fn get_documents_by_department(
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -166,7 +169,7 @@ pub async fn get_documents_by_section(
 ) -> Result<Vec<DocumentPath>> {
     let section_code_str = section_code.0.to_string();
     let deleted_filter = if include_deleted { 1 } else { 0 };
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -186,7 +189,7 @@ pub async fn get_documents_by_section(
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -218,7 +221,7 @@ pub async fn get_documents_by_task(
     include_deleted: bool,
 ) -> Result<Vec<DocumentPath>> {
     let deleted_filter = if include_deleted { 1 } else { 0 };
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -238,7 +241,7 @@ pub async fn get_documents_by_task(
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -271,7 +274,7 @@ pub async fn search_documents_by_text(
 ) -> Result<Vec<DocumentPath>> {
     let deleted_filter = if include_deleted { 1 } else { 0 };
     let search_pattern = format!("%{}%", search_text);
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, document_number, document_type_code, department_code, section_code,
@@ -293,7 +296,7 @@ pub async fn search_documents_by_text(
         .filter_map(|r| {
             let dept_char = r.department_code.chars().next()?;
             let section_char = r.section_code.chars().next()?;
-            
+
             Some(DocumentPath {
                 id: DocumentId::new(r.id),
                 document_number: r.document_number,
@@ -419,15 +422,17 @@ impl Default for DocumentQuery {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::{
+        Department, DocumentPath, DocumentType, PathGenerationRule, Section, User,
+    };
     use crate::storage::db::init_db_pool;
-    use crate::storage::{department, section, user, document_type, document_path};
-    use crate::models::{Department, Section, User, DocumentType, DocumentPath, PathGenerationRule};
+    use crate::storage::{department, document_path, document_type, section, user};
 
     async fn setup_test_data(pool: &SqlitePool) -> Result<(DocumentPath, DocumentPath)> {
         // Create department
         let dept = Department::new('G', "総務");
         department::create_department(pool, &dept).await?;
-        
+
         // Create section
         let sec = Section {
             code: SectionCode::new('I'),
@@ -435,20 +440,20 @@ mod tests {
             department: DeptCode::new('G'),
         };
         section::create_section(pool, &sec).await?;
-        
+
         // Create user
         let u = User::new("user001", "田川太郎", 'G', 'I');
         user::create_user(pool, &u).await?;
-        
+
         // Create document types
         let rule_a = PathGenerationRule::example_agi();
         let doc_type_a = DocumentType::new("A", "契約書", "/docs/contracts/", rule_a);
         document_type::create_document_type(pool, &doc_type_a).await?;
-        
+
         let rule_b = PathGenerationRule::example_ringi();
         let doc_type_b = DocumentType::new("りん議", "稟議書", "/docs/ringi/", rule_b);
         document_type::create_document_type(pool, &doc_type_b).await?;
-        
+
         // Create documents
         let doc1 = DocumentPath::new_auto(
             "AGI-2509001",
@@ -458,7 +463,7 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
-        
+
         let doc2 = DocumentPath::new_auto(
             "りん議I-25009",
             TypeCode::new("りん議"),
@@ -467,10 +472,10 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/ringi/りん議I-25009.pdf"),
         );
-        
+
         document_path::create_document_path(pool, &doc1).await?;
         document_path::create_document_path(pool, &doc2).await?;
-        
+
         Ok((doc1, doc2))
     }
 
@@ -478,7 +483,7 @@ mod tests {
     async fn test_get_all_documents() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let docs = get_all_documents(&pool, false).await?;
         assert_eq!(docs.len(), 2);
         Ok(())
@@ -488,7 +493,7 @@ mod tests {
     async fn test_get_documents_by_type() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let docs = get_documents_by_type(&pool, &TypeCode::new("A"), false).await?;
         assert_eq!(docs.len(), 1);
         assert_eq!(docs[0].document_number, "AGI-2509001");
@@ -499,7 +504,7 @@ mod tests {
     async fn test_get_documents_by_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let docs = get_documents_by_department(&pool, &DeptCode::new('G'), false).await?;
         assert_eq!(docs.len(), 2);
         Ok(())
@@ -509,7 +514,7 @@ mod tests {
     async fn test_get_documents_by_section() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
         setup_test_data(&pool).await?;
-        
+
         let docs = get_documents_by_section(&pool, &SectionCode::new('I'), false).await?;
         assert_eq!(docs.len(), 2);
         Ok(())

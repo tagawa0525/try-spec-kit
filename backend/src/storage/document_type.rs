@@ -1,8 +1,8 @@
 //! Document Type storage operations
 
-use sqlx::SqlitePool;
 use crate::error::Result;
-use crate::models::{DocumentType, TypeCode, PathGenerationRule};
+use crate::models::{DocumentType, PathGenerationRule, TypeCode};
+use sqlx::SqlitePool;
 
 /// Create a new document type
 pub async fn create_document_type(pool: &SqlitePool, doc_type: &DocumentType) -> Result<()> {
@@ -10,7 +10,7 @@ pub async fn create_document_type(pool: &SqlitePool, doc_type: &DocumentType) ->
     let rule_json = serde_json::to_string(&doc_type.generation_rule)?;
     let counter_scope = format!("{:?}", doc_type.generation_rule.counter_scope);
     let counter_digits = doc_type.generation_rule.counter_digits as i32;
-    
+
     let rule_id = sqlx::query!(
         r#"
         INSERT INTO generation_rules (components, separators, counter_scope, counter_digits)
@@ -28,7 +28,7 @@ pub async fn create_document_type(pool: &SqlitePool, doc_type: &DocumentType) ->
 
     // Then insert the document type
     let active = doc_type.active as i32;
-    
+
     sqlx::query!(
         r#"
         INSERT INTO document_types (code, description, root_directory, generation_rule_id, active)
@@ -65,7 +65,7 @@ pub async fn get_document_type(pool: &SqlitePool, code: &TypeCode) -> Result<Opt
         Some(r) => {
             let generation_rule = serde_json::from_str::<PathGenerationRule>(&r.rule_components)
                 .unwrap_or_else(|_| PathGenerationRule::example_agi());
-            
+
             Ok(Some(DocumentType {
                 code: TypeCode::new(r.code),
                 description: r.description,
@@ -95,10 +95,11 @@ pub async fn list_document_types(pool: &SqlitePool) -> Result<Vec<DocumentType>>
     let doc_types = rows
         .into_iter()
         .filter_map(|r| {
-            let generation_rule = r.rule_components
+            let generation_rule = r
+                .rule_components
                 .and_then(|json| serde_json::from_str::<PathGenerationRule>(&json).ok())
                 .unwrap_or_else(PathGenerationRule::example_agi);
-            
+
             Some(DocumentType {
                 code: TypeCode::new(r.code),
                 description: r.description,
@@ -130,10 +131,11 @@ pub async fn list_active_document_types(pool: &SqlitePool) -> Result<Vec<Documen
     let doc_types = rows
         .into_iter()
         .filter_map(|r| {
-            let generation_rule = r.rule_components
+            let generation_rule = r
+                .rule_components
                 .and_then(|json| serde_json::from_str::<PathGenerationRule>(&json).ok())
                 .unwrap_or_else(PathGenerationRule::example_agi);
-            
+
             Some(DocumentType {
                 code: TypeCode::new(r.code),
                 description: r.description,
@@ -150,7 +152,7 @@ pub async fn list_active_document_types(pool: &SqlitePool) -> Result<Vec<Documen
 /// Update a document type (note: generation rule is immutable)
 pub async fn update_document_type(pool: &SqlitePool, doc_type: &DocumentType) -> Result<()> {
     let active = doc_type.active as i32;
-    
+
     sqlx::query!(
         r#"
         UPDATE document_types
@@ -191,11 +193,11 @@ mod tests {
     #[tokio::test]
     async fn test_create_and_get_document_type() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let rule = PathGenerationRule::example_agi();
         let doc_type = DocumentType::new("A", "契約書", "/docs/contracts/", rule);
         create_document_type(&pool, &doc_type).await?;
-        
+
         let retrieved = get_document_type(&pool, &TypeCode::new("A")).await?;
         assert!(retrieved.is_some());
         if let Some(doc) = retrieved {
@@ -207,11 +209,11 @@ mod tests {
     #[tokio::test]
     async fn test_document_type_multibyte() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let rule = PathGenerationRule::example_ringi();
         let doc_type = DocumentType::new("りん議", "稟議書", "/docs/ringi/", rule);
         create_document_type(&pool, &doc_type).await?;
-        
+
         let retrieved = get_document_type(&pool, &TypeCode::new("りん議")).await?;
         assert!(retrieved.is_some());
         if let Some(doc) = retrieved {
@@ -223,16 +225,16 @@ mod tests {
     #[tokio::test]
     async fn test_list_active_document_types() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let rule1 = PathGenerationRule::example_agi();
         let doc_type1 = DocumentType::new("A", "契約書", "/docs/", rule1);
-        
+
         let rule2 = PathGenerationRule::example_ringi();
         let doc_type2 = DocumentType::new("B", "報告書", "/docs/", rule2).inactive();
-        
+
         create_document_type(&pool, &doc_type1).await?;
         create_document_type(&pool, &doc_type2).await?;
-        
+
         let active_list = list_active_document_types(&pool).await?;
         assert_eq!(active_list.len(), 1);
         assert_eq!(active_list[0].code.0, "A");

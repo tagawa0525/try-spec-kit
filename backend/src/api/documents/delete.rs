@@ -1,6 +1,9 @@
 //! DELETE /api/documents/:id
 
-use axum::{extract::{Path, State}, http::StatusCode};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+};
 use sqlx::SqlitePool;
 
 use crate::error::Result;
@@ -13,7 +16,7 @@ pub async fn delete_document(
     Path(id): Path<String>,
 ) -> Result<StatusCode> {
     document_service::delete_document(&pool, &DocumentId::new(&id)).await?;
-    
+
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -24,9 +27,6 @@ mod tests {
     #[tokio::test]
     async fn test_delete_document_signature() {
         // Compile-time type check
-        let _: fn(
-            State<SqlitePool>,
-            Path<String>,
-        ) -> _ = delete_document;
+        let _: fn(State<SqlitePool>, Path<String>) -> _ = delete_document;
     }
 }

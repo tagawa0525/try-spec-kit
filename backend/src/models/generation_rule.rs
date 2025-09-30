@@ -124,7 +124,10 @@ mod tests {
         let rule = PathGenerationRule::example_agi();
         assert_eq!(rule.components.len(), 6);
         assert_eq!(rule.counter_digits, 3);
-        assert!(matches!(rule.counter_scope, CounterScope::TypeDeptSectionYearMonth));
+        assert!(matches!(
+            rule.counter_scope,
+            CounterScope::TypeDeptSectionYearMonth
+        ));
     }
 
     #[test]

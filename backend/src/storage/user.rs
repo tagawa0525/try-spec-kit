@@ -1,8 +1,8 @@
 //! User storage operations
 
-use sqlx::SqlitePool;
 use crate::error::Result;
-use crate::models::{User, UserId, DeptCode, SectionCode, Permissions};
+use crate::models::{DeptCode, Permissions, SectionCode, User, UserId};
+use sqlx::SqlitePool;
 
 /// Create a new user
 pub async fn create_user(pool: &SqlitePool, user: &User) -> Result<()> {
@@ -12,7 +12,7 @@ pub async fn create_user(pool: &SqlitePool, user: &User) -> Result<()> {
     let can_update = user.permissions.can_update as i32;
     let can_delete = user.permissions.can_delete as i32;
     let can_read = user.permissions.can_read as i32;
-    
+
     sqlx::query!(
         r#"
         INSERT INTO users (id, name, department_code, section_code, can_create, can_update, can_delete, can_read)
@@ -50,7 +50,7 @@ pub async fn get_user(pool: &SqlitePool, id: &UserId) -> Result<Option<User>> {
         Some(r) => {
             let dept_char = r.department_code.chars().next().unwrap_or('?');
             let section_char = r.section_code.chars().next().unwrap_or('?');
-            
+
             Ok(Some(User {
                 id: UserId::new(r.id),
                 name: r.name,
@@ -109,7 +109,7 @@ pub async fn list_users_by_department(
     dept_code: &DeptCode,
 ) -> Result<Vec<User>> {
     let dept_code_str = dept_code.0.to_string();
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, name, department_code, section_code, can_create, can_update, can_delete, can_read
@@ -146,9 +146,12 @@ pub async fn list_users_by_department(
 }
 
 /// List users by section
-pub async fn list_users_by_section(pool: &SqlitePool, section_code: &SectionCode) -> Result<Vec<User>> {
+pub async fn list_users_by_section(
+    pool: &SqlitePool,
+    section_code: &SectionCode,
+) -> Result<Vec<User>> {
     let section_code_str = section_code.0.to_string();
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, name, department_code, section_code, can_create, can_update, can_delete, can_read
@@ -192,7 +195,7 @@ pub async fn update_user(pool: &SqlitePool, user: &User) -> Result<()> {
     let can_update = user.permissions.can_update as i32;
     let can_delete = user.permissions.can_delete as i32;
     let can_read = user.permissions.can_read as i32;
-    
+
     sqlx::query!(
         r#"
         UPDATE users
@@ -239,21 +242,21 @@ mod tests {
     #[tokio::test]
     async fn test_create_and_get_user() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         // Create department and section first
         let dept = crate::models::Department::new('G', "総務");
         department::create_department(&pool, &dept).await?;
-        
+
         let sec = crate::models::Section {
             code: SectionCode::new('I'),
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
         section::create_section(&pool, &sec).await?;
-        
+
         let user = User::new("user001", "田川太郎", 'G', 'I');
         create_user(&pool, &user).await?;
-        
+
         let retrieved = get_user(&pool, &UserId::new("user001")).await?;
         assert!(retrieved.is_some());
         if let Some(u) = retrieved {
@@ -265,24 +268,24 @@ mod tests {
     #[tokio::test]
     async fn test_list_users_by_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         // Create department and section
         let dept = crate::models::Department::new('G', "総務");
         department::create_department(&pool, &dept).await?;
-        
+
         let sec = crate::models::Section {
             code: SectionCode::new('I'),
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
         section::create_section(&pool, &sec).await?;
-        
+
         // Create users
         let user1 = User::new("user001", "田川太郎", 'G', 'I');
         let user2 = User::new("user002", "山田花子", 'G', 'I');
         create_user(&pool, &user1).await?;
         create_user(&pool, &user2).await?;
-        
+
         let list = list_users_by_department(&pool, &DeptCode::new('G')).await?;
         assert_eq!(list.len(), 2);
         Ok(())

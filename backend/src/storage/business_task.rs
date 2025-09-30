@@ -1,15 +1,15 @@
 //! Business Task storage operations
 
-use sqlx::SqlitePool;
 use crate::error::Result;
-use crate::models::{BusinessTask, TaskId, DeptCode, SectionCode};
+use crate::models::{BusinessTask, DeptCode, SectionCode, TaskId};
+use sqlx::SqlitePool;
 
 /// Create a new business task
 pub async fn create_business_task(pool: &SqlitePool, task: &BusinessTask) -> Result<()> {
     let dept_code = task.department.map(|d| d.0.to_string());
     let section_code = task.section.map(|s| s.0.to_string());
     let active = task.active as i32;
-    
+
     sqlx::query!(
         r#"
         INSERT INTO business_tasks (id, description, department_code, section_code, active)
@@ -42,14 +42,16 @@ pub async fn get_business_task(pool: &SqlitePool, id: &TaskId) -> Result<Option<
 
     match row {
         Some(r) => {
-            let department = r.department_code
+            let department = r
+                .department_code
                 .and_then(|s| s.chars().next())
                 .map(DeptCode::new);
-            
-            let section = r.section_code
+
+            let section = r
+                .section_code
                 .and_then(|s| s.chars().next())
                 .map(SectionCode::new);
-            
+
             Ok(Some(BusinessTask {
                 id: TaskId::new(r.id),
                 description: r.description,
@@ -77,14 +79,16 @@ pub async fn list_business_tasks(pool: &SqlitePool) -> Result<Vec<BusinessTask>>
     let tasks = rows
         .into_iter()
         .map(|r| {
-            let department = r.department_code
+            let department = r
+                .department_code
                 .and_then(|s| s.chars().next())
                 .map(DeptCode::new);
-            
-            let section = r.section_code
+
+            let section = r
+                .section_code
                 .and_then(|s| s.chars().next())
                 .map(SectionCode::new);
-            
+
             BusinessTask {
                 id: TaskId::new(r.id),
                 description: r.description,
@@ -114,14 +118,16 @@ pub async fn list_active_business_tasks(pool: &SqlitePool) -> Result<Vec<Busines
     let tasks = rows
         .into_iter()
         .map(|r| {
-            let department = r.department_code
+            let department = r
+                .department_code
                 .and_then(|s| s.chars().next())
                 .map(DeptCode::new);
-            
-            let section = r.section_code
+
+            let section = r
+                .section_code
                 .and_then(|s| s.chars().next())
                 .map(SectionCode::new);
-            
+
             BusinessTask {
                 id: TaskId::new(r.id),
                 description: r.description,
@@ -136,9 +142,12 @@ pub async fn list_active_business_tasks(pool: &SqlitePool) -> Result<Vec<Busines
 }
 
 /// List business tasks by department
-pub async fn list_business_tasks_by_department(pool: &SqlitePool, dept_code: &DeptCode) -> Result<Vec<BusinessTask>> {
+pub async fn list_business_tasks_by_department(
+    pool: &SqlitePool,
+    dept_code: &DeptCode,
+) -> Result<Vec<BusinessTask>> {
     let dept_code_str = dept_code.0.to_string();
-    
+
     let rows = sqlx::query!(
         r#"
         SELECT id, description, department_code, section_code, active
@@ -154,14 +163,16 @@ pub async fn list_business_tasks_by_department(pool: &SqlitePool, dept_code: &De
     let tasks = rows
         .into_iter()
         .map(|r| {
-            let department = r.department_code
+            let department = r
+                .department_code
                 .and_then(|s| s.chars().next())
                 .map(DeptCode::new);
-            
-            let section = r.section_code
+
+            let section = r
+                .section_code
                 .and_then(|s| s.chars().next())
                 .map(SectionCode::new);
-            
+
             BusinessTask {
                 id: TaskId::new(r.id),
                 description: r.description,
@@ -180,7 +191,7 @@ pub async fn update_business_task(pool: &SqlitePool, task: &BusinessTask) -> Res
     let dept_code = task.department.map(|d| d.0.to_string());
     let section_code = task.section.map(|s| s.0.to_string());
     let active = task.active as i32;
-    
+
     sqlx::query!(
         r#"
         UPDATE business_tasks
@@ -223,10 +234,10 @@ mod tests {
     #[tokio::test]
     async fn test_create_and_get_business_task() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let task = BusinessTask::new("task001", "契約書作成");
         create_business_task(&pool, &task).await?;
-        
+
         let retrieved = get_business_task(&pool, &TaskId::new("task001")).await?;
         assert!(retrieved.is_some());
         if let Some(t) = retrieved {
@@ -238,15 +249,14 @@ mod tests {
     #[tokio::test]
     async fn test_business_task_with_department() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         // Create department first
         let dept = crate::models::Department::new('G', "総務");
         department::create_department(&pool, &dept).await?;
-        
-        let task = BusinessTask::new("task001", "部門タスク")
-            .with_department('G');
+
+        let task = BusinessTask::new("task001", "部門タスク").with_department('G');
         create_business_task(&pool, &task).await?;
-        
+
         let list = list_business_tasks_by_department(&pool, &DeptCode::new('G')).await?;
         assert_eq!(list.len(), 1);
         Ok(())
@@ -255,12 +265,12 @@ mod tests {
     #[tokio::test]
     async fn test_list_active_business_tasks() -> Result<()> {
         let pool = init_db_pool("sqlite::memory:").await?;
-        
+
         let task1 = BusinessTask::new("task001", "アクティブタスク");
         let task2 = BusinessTask::new("task002", "非アクティブタスク").inactive();
         create_business_task(&pool, &task1).await?;
         create_business_task(&pool, &task2).await?;
-        
+
         let active_list = list_active_business_tasks(&pool).await?;
         assert_eq!(active_list.len(), 1);
         assert_eq!(active_list[0].id.0, "task001");
