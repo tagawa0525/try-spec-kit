@@ -159,32 +159,35 @@ mod tests {
     use crate::storage::department;
 
     #[tokio::test]
-    async fn test_create_and_get_section() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_and_get_section() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Create department first
         let dept = crate::models::Department::new('G', "総務");
-        department::create_department(&pool, &dept).await.unwrap();
+        department::create_department(&pool, &dept).await?;
         
         let section = Section {
             code: SectionCode::new('I'),
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
-        create_section(&pool, &section).await.unwrap();
+        create_section(&pool, &section).await?;
         
-        let retrieved = get_section(&pool, &SectionCode::new('I')).await.unwrap();
+        let retrieved = get_section(&pool, &SectionCode::new('I')).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().name, "インフラ");
+        if let Some(sec) = retrieved {
+            assert_eq!(sec.name, "インフラ");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_list_sections_by_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_list_sections_by_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Create department
         let dept = crate::models::Department::new('G', "総務");
-        department::create_department(&pool, &dept).await.unwrap();
+        department::create_department(&pool, &dept).await?;
         
         // Create sections
         let section1 = Section {
@@ -197,10 +200,11 @@ mod tests {
             name: "技術".to_string(),
             department: DeptCode::new('G'),
         };
-        create_section(&pool, &section1).await.unwrap();
-        create_section(&pool, &section2).await.unwrap();
+        create_section(&pool, &section1).await?;
+        create_section(&pool, &section2).await?;
         
-        let list = list_sections_by_department(&pool, &DeptCode::new('G')).await.unwrap();
+        let list = list_sections_by_department(&pool, &DeptCode::new('G')).await?;
         assert_eq!(list.len(), 2);
+        Ok(())
     }
 }

@@ -101,8 +101,8 @@ mod tests {
     use crate::storage::db::init_db_pool;
 
     #[tokio::test]
-    async fn test_generate_document_number_agi() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_generate_document_number_agi() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let rule = PathGenerationRule::example_agi();
         let type_code = TypeCode::new("A");
@@ -110,17 +110,17 @@ mod tests {
         let section_code = SectionCode::new('I');
         
         let number = generate_document_number(&pool, &rule, &type_code, &dept_code, &section_code)
-            .await
-            .unwrap();
+            .await?;
         
         // Should be like "AGI2510001" (AGI + YY + MM + counter)
         assert!(number.starts_with("AGI"));
         assert_eq!(number.len(), 10); // AGI(3) + YY(2) + MM(2) + NNN(3) = 10
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_generate_document_number_ringi() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_generate_document_number_ringi() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let rule = PathGenerationRule::example_ringi();
         let type_code = TypeCode::new("りん議");
@@ -128,12 +128,12 @@ mod tests {
         let section_code = SectionCode::new('I');
         
         let number = generate_document_number(&pool, &rule, &type_code, &dept_code, &section_code)
-            .await
-            .unwrap();
+            .await?;
         
         // Should be like "りん議I-25001" (りん議 + I + - + YY + counter)
         assert!(number.starts_with("りん議"));
         assert!(number.contains("I-"));
+        Ok(())
     }
 
     #[test]
@@ -178,8 +178,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_counter_increment() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_counter_increment() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let rule = PathGenerationRule::example_agi();
         let type_code = TypeCode::new("A");
@@ -187,16 +187,15 @@ mod tests {
         let section_code = SectionCode::new('I');
         
         let num1 = generate_document_number(&pool, &rule, &type_code, &dept_code, &section_code)
-            .await
-            .unwrap();
+            .await?;
         let num2 = generate_document_number(&pool, &rule, &type_code, &dept_code, &section_code)
-            .await
-            .unwrap();
+            .await?;
         
         // Counter should increment
         assert_ne!(num1, num2);
         // Last 3 digits should be 001, 002
         assert!(num1.ends_with("001"));
         assert!(num2.ends_with("002"));
+        Ok(())
     }
 }

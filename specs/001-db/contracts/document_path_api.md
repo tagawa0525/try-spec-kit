@@ -234,41 +234,43 @@ pub fn search_documents(query: &str) -> Result<Vec<DocumentPath>, Error>;
 ### Scenario 1: Auto-generation (FR-006)
 ```rust
 #[test]
-fn test_auto_generate_document_type_a() {
+fn test_auto_generate_document_type_a() -> anyhow::Result<()> {
     // Given: GI部門・課に所属するユーザー、文書種類A
     let user = create_test_user("G", "I");
     let type_a = create_test_type_a(); // AGI[YYMM][NNN]形式
     
     // When: 2025年9月に文書を作成
-    let doc = create_document_auto(&type_a.code, &user.id, None).unwrap();
+    let doc = create_document_auto(&type_a.code, &user.id, None)?;
     
     // Then: 文書番号は "AGI-2509001"
     assert_eq!(doc.document_number, "AGI-2509001");
     assert!(doc.file_path.to_string_lossy().starts_with("/docs/contracts/"));
+    Ok(())
 }
 ```
 
 ### Scenario 2: Multi-byte type code (FR-033)
 ```rust
 #[test]
-fn test_multi_byte_type_code() {
+fn test_multi_byte_type_code() -> anyhow::Result<()> {
     // Given: 文書種類「りん議」、I課ユーザー
     let user = create_test_user("K", "I");
     let type_ringi = create_test_type_ringi(); // りん議I-[YY][NNN]形式
     
     // When: 2025年に文書を作成
-    let doc = create_document_auto(&type_ringi.code, &user.id, None).unwrap();
+    let doc = create_document_auto(&type_ringi.code, &user.id, None)?;
     
     // Then: 文書番号は "りん議I-25009" 形式
     assert!(doc.document_number.starts_with("りん議I-25"));
     assert_eq!(doc.document_number.len(), "りん議I-25009".len());
+    Ok(())
 }
 ```
 
 ### Scenario 3: Manual path addition (FR-009)
 ```rust
 #[test]
-fn test_manual_document_addition() {
+fn test_manual_document_addition() -> anyhow::Result<()> {
     // Given: 手動文書番号とパス
     let user = create_test_user("G", "I");
     let type_d = create_test_type_d();
@@ -280,30 +282,32 @@ fn test_manual_document_addition() {
         PathBuf::from("/external/docs/import.pdf"),
         &user.id,
         None,
-    ).unwrap();
+    )?;
     
     // Then: generated=false
     assert!(!doc.generated);
     assert_eq!(doc.document_number, "CUSTOM-001");
+    Ok(())
 }
 ```
 
 ### Scenario 4: Logical deletion (FR-014, FR-038)
 ```rust
 #[test]
-fn test_logical_deletion() {
+fn test_logical_deletion() -> anyhow::Result<()> {
     // Given: 作成済み文書
     let doc = create_test_document();
     
     // When: 文書を削除
-    let deleted = delete_document(&doc.id).unwrap();
+    let deleted = delete_document(&doc.id)?;
     
     // Then: deleted=true、データは保持
     assert!(deleted.deleted);
     
     // And: IDで取得可能
-    let retrieved = get_document_by_id(&doc.id).unwrap();
+    let retrieved = get_document_by_id(&doc.id)?;
     assert!(retrieved.deleted);
+    Ok(())
 }
 ```
 
@@ -313,24 +317,26 @@ fn test_logical_deletion() {
 
 ```rust
 #[test]
-fn test_performance_create_under_10ms() {
+fn test_performance_create_under_10ms() -> anyhow::Result<()> {
     let start = Instant::now();
-    let _doc = create_document_auto(&test_type(), &test_user(), None).unwrap();
+    let _doc = create_document_auto(&test_type(), &test_user(), None)?;
     let duration = start.elapsed();
     
     assert!(duration.as_millis() < 10, "Creation took {}ms", duration.as_millis());
+    Ok(())
 }
 
 #[test]
-fn test_performance_query_under_100ms() {
+fn test_performance_query_under_100ms() -> anyhow::Result<()> {
     // Setup: 10,000 documents
     setup_10k_documents();
     
     let start = Instant::now();
-    let _results = search_documents("AGI").unwrap();
+    let _results = search_documents("AGI")?;
     let duration = start.elapsed();
     
     assert!(duration.as_millis() < 100, "Query took {}ms", duration.as_millis());
+    Ok(())
 }
 ```
 

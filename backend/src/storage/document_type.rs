@@ -189,34 +189,40 @@ mod tests {
     use crate::storage::db::init_db_pool;
 
     #[tokio::test]
-    async fn test_create_and_get_document_type() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_and_get_document_type() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let rule = PathGenerationRule::example_agi();
         let doc_type = DocumentType::new("A", "契約書", "/docs/contracts/", rule);
-        create_document_type(&pool, &doc_type).await.unwrap();
+        create_document_type(&pool, &doc_type).await?;
         
-        let retrieved = get_document_type(&pool, &TypeCode::new("A")).await.unwrap();
+        let retrieved = get_document_type(&pool, &TypeCode::new("A")).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().description, "契約書");
+        if let Some(doc) = retrieved {
+            assert_eq!(doc.description, "契約書");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_document_type_multibyte() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_document_type_multibyte() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let rule = PathGenerationRule::example_ringi();
         let doc_type = DocumentType::new("りん議", "稟議書", "/docs/ringi/", rule);
-        create_document_type(&pool, &doc_type).await.unwrap();
+        create_document_type(&pool, &doc_type).await?;
         
-        let retrieved = get_document_type(&pool, &TypeCode::new("りん議")).await.unwrap();
+        let retrieved = get_document_type(&pool, &TypeCode::new("りん議")).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().code.0, "りん議");
+        if let Some(doc) = retrieved {
+            assert_eq!(doc.code.0, "りん議");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_list_active_document_types() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_list_active_document_types() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let rule1 = PathGenerationRule::example_agi();
         let doc_type1 = DocumentType::new("A", "契約書", "/docs/", rule1);
@@ -224,11 +230,12 @@ mod tests {
         let rule2 = PathGenerationRule::example_ringi();
         let doc_type2 = DocumentType::new("B", "報告書", "/docs/", rule2).inactive();
         
-        create_document_type(&pool, &doc_type1).await.unwrap();
-        create_document_type(&pool, &doc_type2).await.unwrap();
+        create_document_type(&pool, &doc_type1).await?;
+        create_document_type(&pool, &doc_type2).await?;
         
-        let active_list = list_active_document_types(&pool).await.unwrap();
+        let active_list = list_active_document_types(&pool).await?;
         assert_eq!(active_list.len(), 1);
         assert_eq!(active_list[0].code.0, "A");
+        Ok(())
     }
 }

@@ -16,9 +16,10 @@ mod tests {
     
     #[test]
     #[ignore = "Integration test - will fail until implementation"]
-    fn test_search_documents_returns_vec() {
+    fn test_search_documents_returns_vec() -> anyhow::Result<()> {
         // Test that search returns a vector
-        // let results = search_documents("AGI").unwrap();
+        // let results = search_documents("AGI")?;
         // assert!(results.is_empty() || !results.is_empty());  // Just verify it's a Vec
+        Ok(())
     }
 }

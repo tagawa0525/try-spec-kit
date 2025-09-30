@@ -131,83 +131,89 @@ mod tests {
     use crate::storage::db::init_db_pool;
 
     #[tokio::test]
-    async fn test_get_next_counter_initializes_at_1() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_get_next_counter_initializes_at_1() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
-        let value = get_next_counter(&pool, "test_scope").await.unwrap();
+        let value = get_next_counter(&pool, "test_scope").await?;
         assert_eq!(value, 1);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_next_counter_increments() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_get_next_counter_increments() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
-        let val1 = get_next_counter(&pool, "test_scope").await.unwrap();
-        let val2 = get_next_counter(&pool, "test_scope").await.unwrap();
-        let val3 = get_next_counter(&pool, "test_scope").await.unwrap();
+        let val1 = get_next_counter(&pool, "test_scope").await?;
+        let val2 = get_next_counter(&pool, "test_scope").await?;
+        let val3 = get_next_counter(&pool, "test_scope").await?;
         
         assert_eq!(val1, 1);
         assert_eq!(val2, 2);
         assert_eq!(val3, 3);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_current_counter() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_get_current_counter() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // No counter yet
-        let current = get_current_counter(&pool, "test_scope").await.unwrap();
+        let current = get_current_counter(&pool, "test_scope").await?;
         assert!(current.is_none());
         
         // Create counter
-        get_next_counter(&pool, "test_scope").await.unwrap();
+        get_next_counter(&pool, "test_scope").await?;
         
         // Now it should exist
-        let current = get_current_counter(&pool, "test_scope").await.unwrap();
+        let current = get_current_counter(&pool, "test_scope").await?;
         assert_eq!(current, Some(1));
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_reset_counter() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_reset_counter() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
-        get_next_counter(&pool, "test_scope").await.unwrap();
-        get_next_counter(&pool, "test_scope").await.unwrap();
+        get_next_counter(&pool, "test_scope").await?;
+        get_next_counter(&pool, "test_scope").await?;
         
         // Reset to 10
-        reset_counter(&pool, "test_scope", 10).await.unwrap();
+        reset_counter(&pool, "test_scope", 10).await?;
         
-        let current = get_current_counter(&pool, "test_scope").await.unwrap();
+        let current = get_current_counter(&pool, "test_scope").await?;
         assert_eq!(current, Some(10));
         
-        let next = get_next_counter(&pool, "test_scope").await.unwrap();
+        let next = get_next_counter(&pool, "test_scope").await?;
         assert_eq!(next, 11);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_different_scopes_independent() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_different_scopes_independent() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
-        let val1a = get_next_counter(&pool, "scope_a").await.unwrap();
-        let val1b = get_next_counter(&pool, "scope_b").await.unwrap();
-        let val2a = get_next_counter(&pool, "scope_a").await.unwrap();
+        let val1a = get_next_counter(&pool, "scope_a").await?;
+        let val1b = get_next_counter(&pool, "scope_b").await?;
+        let val2a = get_next_counter(&pool, "scope_a").await?;
         
         assert_eq!(val1a, 1);
         assert_eq!(val1b, 1);
         assert_eq!(val2a, 2);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_list_counters() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_list_counters() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
-        get_next_counter(&pool, "scope_a").await.unwrap();
-        get_next_counter(&pool, "scope_b").await.unwrap();
-        get_next_counter(&pool, "scope_b").await.unwrap();
+        get_next_counter(&pool, "scope_a").await?;
+        get_next_counter(&pool, "scope_b").await?;
+        get_next_counter(&pool, "scope_b").await?;
         
-        let counters = list_counters(&pool).await.unwrap();
+        let counters = list_counters(&pool).await?;
         assert_eq!(counters.len(), 2);
         assert!(counters.contains(&("scope_a".to_string(), 1)));
         assert!(counters.contains(&("scope_b".to_string(), 2)));
+        Ok(())
     }
 }

@@ -111,11 +111,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_rule_component_serialization() {
+    fn test_rule_component_serialization() -> Result<(), serde_json::Error> {
         let component = RuleComponent::Year { digits: 2 };
-        let json = serde_json::to_string(&component).unwrap();
+        let json = serde_json::to_string(&component)?;
         assert!(json.contains("Year"));
         assert!(json.contains("\"digits\":2"));
+        Ok(())
     }
 
     #[test]
@@ -135,9 +136,10 @@ mod tests {
     }
 
     #[test]
-    fn test_counter_scope_serialization() {
+    fn test_counter_scope_serialization() -> Result<(), serde_json::Error> {
         let scope = CounterScope::TypeAndYear;
-        let json = serde_json::to_string(&scope).unwrap();
+        let json = serde_json::to_string(&scope)?;
         assert_eq!(json, "\"TypeAndYear\"");
+        Ok(())
     }
 }

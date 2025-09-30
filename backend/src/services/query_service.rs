@@ -149,29 +149,29 @@ mod tests {
     use crate::models::{Department, Section, User, DocumentType, PathGenerationRule, UserId};
     use std::path::PathBuf;
 
-    async fn setup_test_data(pool: &SqlitePool) {
+    async fn setup_test_data(pool: &SqlitePool) -> Result<()> {
         // Create organization
         let dept = Department::new('G', "総務");
-        department::create_department(pool, &dept).await.unwrap();
+        department::create_department(pool, &dept).await?;
         
         let sec = Section {
             code: SectionCode::new('I'),
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
-        section::create_section(pool, &sec).await.unwrap();
+        section::create_section(pool, &sec).await?;
         
         let usr = User::new("user001", "田川太郎", 'G', 'I');
-        user::create_user(pool, &usr).await.unwrap();
+        user::create_user(pool, &usr).await?;
         
         // Create document types
         let rule_a = PathGenerationRule::example_agi();
         let doc_type_a = DocumentType::new("A", "契約書", "/docs/contracts/", rule_a);
-        document_type::create_document_type(pool, &doc_type_a).await.unwrap();
+        document_type::create_document_type(pool, &doc_type_a).await?;
         
         let rule_b = PathGenerationRule::example_ringi();
         let doc_type_b = DocumentType::new("りん議", "稟議書", "/docs/ringi/", rule_b);
-        document_type::create_document_type(pool, &doc_type_b).await.unwrap();
+        document_type::create_document_type(pool, &doc_type_b).await?;
         
         // Create documents
         let doc1 = DocumentPath::new_auto(
@@ -192,65 +192,69 @@ mod tests {
             PathBuf::from("/docs/ringi/りん議I-25009.pdf"),
         );
         
-        document_path::create_document_path(pool, &doc1).await.unwrap();
-        document_path::create_document_path(pool, &doc2).await.unwrap();
+        document_path::create_document_path(pool, &doc1).await?;
+        document_path::create_document_path(pool, &doc2).await?;
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_all_documents() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_get_all_documents() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
-        let docs = get_all_documents(&pool, false).await.unwrap();
+        let docs = get_all_documents(&pool, false).await?;
         assert_eq!(docs.len(), 2);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_documents_by_type() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_get_documents_by_type() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
-        let docs = get_documents_by_type(&pool, &TypeCode::new("A"), false).await.unwrap();
+        let docs = get_documents_by_type(&pool, &TypeCode::new("A"), false).await?;
         assert_eq!(docs.len(), 1);
         assert_eq!(docs[0].document_type.0, "A");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_documents_by_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_get_documents_by_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
-        let docs = get_documents_by_department(&pool, &DeptCode::new('G'), false).await.unwrap();
+        let docs = get_documents_by_department(&pool, &DeptCode::new('G'), false).await?;
         assert_eq!(docs.len(), 2);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_query_builder() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_query_builder() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let docs = DocumentQueryBuilder::new()
             .type_code(TypeCode::new("A"))
             .department(DeptCode::new('G'))
             .execute(&pool)
-            .await
-            .unwrap();
+            .await?;
         
         assert_eq!(docs.len(), 1);
         assert_eq!(docs[0].document_type.0, "A");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_query_builder_section() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_query_builder_section() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let docs = DocumentQueryBuilder::new()
             .section(SectionCode::new('I'))
             .execute(&pool)
-            .await
-            .unwrap();
+            .await?;
         
         assert_eq!(docs.len(), 2);
+        Ok(())
     }
 }

@@ -34,8 +34,9 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_db_initialization() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_db_initialization() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         assert!(pool.acquire().await.is_ok());
+        Ok(())
     }
 }

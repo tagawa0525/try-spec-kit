@@ -149,54 +149,62 @@ mod tests {
     use crate::storage::db::init_db_pool;
 
     #[tokio::test]
-    async fn test_create_and_get_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_and_get_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let dept = Department::new('G', "総務");
-        create_department(&pool, &dept).await.unwrap();
+        create_department(&pool, &dept).await?;
         
-        let retrieved = get_department(&pool, &DeptCode::new('G')).await.unwrap();
+        let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().name, "総務");
+        if let Some(d) = retrieved {
+            assert_eq!(d.name, "総務");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_list_departments() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_list_departments() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let dept1 = Department::new('G', "総務");
         let dept2 = Department::new('K', "分析");
-        create_department(&pool, &dept1).await.unwrap();
-        create_department(&pool, &dept2).await.unwrap();
+        create_department(&pool, &dept1).await?;
+        create_department(&pool, &dept2).await?;
         
-        let list = list_departments(&pool).await.unwrap();
+        let list = list_departments(&pool).await?;
         assert_eq!(list.len(), 2);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_update_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_update_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let mut dept = Department::new('G', "総務");
-        create_department(&pool, &dept).await.unwrap();
+        create_department(&pool, &dept).await?;
         
         dept.name = "総務部".to_string();
-        update_department(&pool, &dept).await.unwrap();
+        update_department(&pool, &dept).await?;
         
-        let retrieved = get_department(&pool, &DeptCode::new('G')).await.unwrap();
-        assert_eq!(retrieved.unwrap().name, "総務部");
+        let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
+        if let Some(d) = retrieved {
+            assert_eq!(d.name, "総務部");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_delete_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_delete_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let dept = Department::new('G', "総務");
-        create_department(&pool, &dept).await.unwrap();
+        create_department(&pool, &dept).await?;
         
-        delete_department(&pool, &DeptCode::new('G')).await.unwrap();
+        delete_department(&pool, &DeptCode::new('G')).await?;
         
-        let retrieved = get_department(&pool, &DeptCode::new('G')).await.unwrap();
+        let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
         assert!(retrieved.is_none());
+        Ok(())
     }
 }

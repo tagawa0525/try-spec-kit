@@ -221,10 +221,10 @@ mod tests {
     use crate::storage::{department, section, user};
     use crate::models::{Department, Section, User, PathGenerationRule, DocumentType};
 
-    async fn setup_test_data(pool: &SqlitePool) {
+    async fn setup_test_data(pool: &SqlitePool) -> anyhow::Result<()> {
         // Create department
         let dept = Department::new('G', "総務");
-        department::create_department(pool, &dept).await.unwrap();
+        department::create_department(pool, &dept).await?;
         
         // Create section
         let sec = Section {
@@ -232,22 +232,23 @@ mod tests {
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
-        section::create_section(pool, &sec).await.unwrap();
+        section::create_section(pool, &sec).await?;
         
         // Create user
         let u = User::new("user001", "田川太郎", 'G', 'I');
-        user::create_user(pool, &u).await.unwrap();
+        user::create_user(pool, &u).await?;
         
         // Create document type
         let rule = PathGenerationRule::example_agi();
         let doc_type = DocumentType::new("A", "契約書", "/docs/contracts/", rule);
-        document_type::create_document_type(pool, &doc_type).await.unwrap();
+        document_type::create_document_type(pool, &doc_type).await?;
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_create_document_auto() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_create_document_auto() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = create_document_auto(
             &pool,
@@ -257,17 +258,18 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/test.pdf"),
             None,
-        ).await.unwrap();
+        ).await?;
         
         assert!(doc.generated);
         assert!(!doc.document_number.is_empty());
         assert_eq!(doc.document_type.0, "A");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_create_document_manual() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_create_document_manual() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = create_document_manual(
             &pool,
@@ -278,16 +280,17 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/manual.pdf"),
             None,
-        ).await.unwrap();
+        ).await?;
         
         assert!(!doc.generated);
         assert_eq!(doc.document_number, "MANUAL-001");
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_update_document_path() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_update_document_path() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = create_document_auto(
             &pool,
@@ -297,22 +300,23 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/old.pdf"),
             None,
-        ).await.unwrap();
+        ).await?;
         
         let updated = update_document_path(
             &pool,
             &doc.id,
             PathBuf::from("/docs/contracts/new.pdf"),
-        ).await.unwrap();
+        ).await?;
         
         assert_eq!(updated.file_path, PathBuf::from("/docs/contracts/new.pdf"));
         assert!(updated.updated_at > doc.created_at);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_delete_document() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_delete_document() -> anyhow::Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = create_document_auto(
             &pool,
@@ -322,11 +326,15 @@ mod tests {
             UserId::new("user001"),
             PathBuf::from("/docs/contracts/test.pdf"),
             None,
-        ).await.unwrap();
+        ).await?;
         
-        delete_document(&pool, &doc.id).await.unwrap();
+        delete_document(&pool, &doc.id).await?;
         
-        let deleted = get_document_by_id(&pool, &doc.id).await.unwrap().unwrap();
+        let deleted = get_document_by_id(&pool, &doc.id).await?
+            .ok_or_else(|| crate::error::Error::NotFound(
+                format!("Document with id {} not found after deletion", doc.id.0)
+            ))?;
         assert!(deleted.deleted);
+        Ok(())
     }
 }

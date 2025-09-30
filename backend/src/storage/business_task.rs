@@ -221,44 +221,49 @@ mod tests {
     use crate::storage::department;
 
     #[tokio::test]
-    async fn test_create_and_get_business_task() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_and_get_business_task() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let task = BusinessTask::new("task001", "契約書作成");
-        create_business_task(&pool, &task).await.unwrap();
+        create_business_task(&pool, &task).await?;
         
-        let retrieved = get_business_task(&pool, &TaskId::new("task001")).await.unwrap();
+        let retrieved = get_business_task(&pool, &TaskId::new("task001")).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().description, "契約書作成");
+        if let Some(t) = retrieved {
+            assert_eq!(t.description, "契約書作成");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_business_task_with_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_business_task_with_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Create department first
         let dept = crate::models::Department::new('G', "総務");
-        department::create_department(&pool, &dept).await.unwrap();
+        department::create_department(&pool, &dept).await?;
         
         let task = BusinessTask::new("task001", "部門タスク")
             .with_department('G');
-        create_business_task(&pool, &task).await.unwrap();
+        create_business_task(&pool, &task).await?;
         
-        let list = list_business_tasks_by_department(&pool, &DeptCode::new('G')).await.unwrap();
+        let list = list_business_tasks_by_department(&pool, &DeptCode::new('G')).await?;
         assert_eq!(list.len(), 1);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_list_active_business_tasks() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_list_active_business_tasks() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let task1 = BusinessTask::new("task001", "アクティブタスク");
         let task2 = BusinessTask::new("task002", "非アクティブタスク").inactive();
-        create_business_task(&pool, &task1).await.unwrap();
-        create_business_task(&pool, &task2).await.unwrap();
+        create_business_task(&pool, &task1).await?;
+        create_business_task(&pool, &task2).await?;
         
-        let active_list = list_active_business_tasks(&pool).await.unwrap();
+        let active_list = list_active_business_tasks(&pool).await?;
         assert_eq!(active_list.len(), 1);
         assert_eq!(active_list[0].id.0, "task001");
+        Ok(())
     }
 }

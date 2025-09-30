@@ -170,24 +170,27 @@ mod tests {
     use crate::storage::db::init_db_pool;
 
     #[tokio::test]
-    async fn test_create_and_get_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_and_get_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         let dept = Department::new('G', "総務");
-        create_department(&pool, dept.clone()).await.unwrap();
+        create_department(&pool, dept.clone()).await?;
         
-        let retrieved = get_department(&pool, &DeptCode::new('G')).await.unwrap();
+        let retrieved = get_department(&pool, &DeptCode::new('G')).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().name, "総務");
+        if let Some(dept) = retrieved {
+            assert_eq!(dept.name, "総務");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_create_section_with_validation() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_section_with_validation() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Create department first
         let dept = Department::new('G', "総務");
-        create_department(&pool, dept).await.unwrap();
+        create_department(&pool, dept).await?;
         
         // Create section
         let sec = Section {
@@ -195,15 +198,16 @@ mod tests {
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
-        create_section(&pool, sec).await.unwrap();
+        create_section(&pool, sec).await?;
         
-        let retrieved = get_section(&pool, &SectionCode::new('I')).await.unwrap();
+        let retrieved = get_section(&pool, &SectionCode::new('I')).await?;
         assert!(retrieved.is_some());
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_create_section_invalid_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_section_invalid_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Try to create section without department
         let sec = Section {
@@ -214,39 +218,43 @@ mod tests {
         
         let result = create_section(&pool, sec).await;
         assert!(result.is_err());
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_create_user_with_validation() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_create_user_with_validation() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Setup organization
         let dept = Department::new('G', "総務");
-        create_department(&pool, dept).await.unwrap();
+        create_department(&pool, dept).await?;
         
         let sec = Section {
             code: SectionCode::new('I'),
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
-        create_section(&pool, sec).await.unwrap();
+        create_section(&pool, sec).await?;
         
         // Create user
         let usr = User::new("user001", "田川太郎", 'G', 'I');
-        create_user(&pool, usr).await.unwrap();
+        create_user(&pool, usr).await?;
         
-        let retrieved = get_user(&pool, &UserId::new("user001")).await.unwrap();
+        let retrieved = get_user(&pool, &UserId::new("user001")).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().name, "田川太郎");
+        if let Some(user) = retrieved {
+            assert_eq!(user.name, "田川太郎");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_list_sections_by_department() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
+    async fn test_list_sections_by_department() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
         
         // Setup
         let dept = Department::new('G', "総務");
-        create_department(&pool, dept).await.unwrap();
+        create_department(&pool, dept).await?;
         
         let sec1 = Section {
             code: SectionCode::new('I'),
@@ -258,10 +266,11 @@ mod tests {
             name: "人事".to_string(),
             department: DeptCode::new('G'),
         };
-        create_section(&pool, sec1).await.unwrap();
-        create_section(&pool, sec2).await.unwrap();
+        create_section(&pool, sec1).await?;
+        create_section(&pool, sec2).await?;
         
-        let sections = list_sections_by_department(&pool, &DeptCode::new('G')).await.unwrap();
+        let sections = list_sections_by_department(&pool, &DeptCode::new('G')).await?;
         assert_eq!(sections.len(), 2);
+        Ok(())
     }
 }

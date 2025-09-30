@@ -29,17 +29,16 @@ mod tests {
     
     #[test]
     #[ignore = "Integration test - will fail until implementation"]
-    fn test_create_document_auto_returns_document() {
+    fn test_create_document_auto_returns_document() -> anyhow::Result<()> {
         // This test will fail until the function is implemented
         // TODO: Implement after models are ready
         
         // Example test structure:
         // let type_code = TypeCode::new("A");
         // let user_id = UserId::new("user001");
-        // let result = create_document_auto(&type_code, &user_id, None);
-        // assert!(result.is_ok());
-        // let doc = result.unwrap();
+        // let doc = create_document_auto(&type_code, &user_id, None)?;
         // assert!(!doc.document_number.is_empty());
         // assert_eq!(doc.document_type, type_code);
+        Ok(())
     }
 }

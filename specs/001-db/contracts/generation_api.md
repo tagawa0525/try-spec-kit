@@ -68,48 +68,52 @@ pub fn build_scope_key(
 
 ```rust
 #[test]
-fn test_generate_with_all_components() {
+fn test_generate_with_all_components() -> anyhow::Result<()> {
     // AGI-2509001形式
     let rule = create_rule_agi();
     let context = create_context_gi_sept_2025();
     
-    let number = generate_document_number(&rule, &context).unwrap();
+    let number = generate_document_number(&rule, &context)?;
     
     assert_eq!(number, "AGI-2509001");
+    Ok(())
 }
 
 #[test]
-fn test_generate_with_separator() {
+fn test_generate_with_separator() -> anyhow::Result<()> {
     // りん議I-25009形式
     let rule = create_rule_ringi();
     let context = create_context_i_2025();
     
-    let number = generate_document_number(&rule, &context).unwrap();
+    let number = generate_document_number(&rule, &context)?;
     
     assert!(number.starts_with("りん議I-25"));
     assert_eq!(number.split('-').count(), 2);
+    Ok(())
 }
 
 #[test]
-fn test_counter_increment() {
+fn test_counter_increment() -> anyhow::Result<()> {
     let scope = "A:G:I:2025:09";
     
-    let n1 = get_next_counter(scope).unwrap();
-    let n2 = get_next_counter(scope).unwrap();
+    let n1 = get_next_counter(scope)?;
+    let n2 = get_next_counter(scope)?;
     
     assert_eq!(n1 + 1, n2);
+    Ok(())
 }
 
 #[test]
-fn test_counter_reset_per_scope() {
+fn test_counter_reset_per_scope() -> anyhow::Result<()> {
     // 異なるスコープで独立したカウンター
     let scope_a = "A:G:I:2025:09";
     let scope_b = "A:G:I:2025:10"; // 月が異なる
     
-    get_next_counter(scope_a).unwrap(); // 001
-    let n_b = get_next_counter(scope_b).unwrap(); // 別スコープなので001
+    get_next_counter(scope_a)?; // 001
+    let n_b = get_next_counter(scope_b)?; // 別スコープなので001
     
     assert_eq!(n_b, 1);
+    Ok(())
 }
 ```
 

@@ -255,15 +255,16 @@ use std::thread;
 let handles: Vec<_> = (0..10)
     .map(|i| {
         let db_clone = db.clone();
-        thread::spawn(move || {
-            db_clone.get_all_documents().unwrap();
+        thread::spawn(move || -> anyhow::Result<()> {
+            db_clone.get_all_documents()?;
             println!("  Thread {} read complete", i);
+            Ok(())
         })
     })
     .collect();
 
 for h in handles {
-    h.join().unwrap();
+    h.join().expect("Thread panicked")?;
 }
 
 println!("✓ 10 concurrent reads completed successfully");

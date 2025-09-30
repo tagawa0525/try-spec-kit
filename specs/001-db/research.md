@@ -389,10 +389,11 @@ async fn main() {
         .route("/api/documents/:id", delete(delete_document_logical))
         .route("/api/documents/search", get(search_documents));
     
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
+    let addr = "0.0.0.0:3000".parse()?;
+    axum::Server::bind(&addr)
         .serve(app.into_make_service())
-        .await
-        .unwrap();
+        .await?;
+    Ok(())
 }
 ```
 

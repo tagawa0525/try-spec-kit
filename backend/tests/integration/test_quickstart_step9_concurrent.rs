@@ -8,9 +8,9 @@ mod tests {
     
     #[tokio::test]
     #[ignore = "Integration test - will fail until implementation"]
-    async fn test_quickstart_step9_concurrent_reads() {
+    async fn test_quickstart_step9_concurrent_reads() -> anyhow::Result<()> {
         // Given: Database with documents
-        // let pool = Arc::new(init_db_pool("sqlite::memory:").await.unwrap());
+        // let pool = Arc::new(init_db_pool("sqlite::memory:").await?);
         // (create some documents)
         
         // When: 10 concurrent read operations
@@ -26,11 +26,12 @@ mod tests {
         // 
         // // Then: All reads succeed
         // for handle in handles {
-        //     let success = handle.await.unwrap();
+        //     let success = handle.await?;
         //     assert!(success);
         // }
         
         println!("✓ Concurrent reads (10 threads) successful");
+        Ok(())
     }
     
     #[tokio::test]

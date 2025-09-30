@@ -60,62 +60,66 @@ impl DocumentQuery {
 
 ```rust
 #[test]
-fn test_query_all_documents() {
+fn test_query_all_documents() -> anyhow::Result<()> {
     setup_test_documents(100);
     
-    let docs = get_all_documents().unwrap();
+    let docs = get_all_documents()?;
     
     assert_eq!(docs.len(), 100);
     assert!(docs.iter().all(|d| !d.deleted));
+    Ok(())
 }
 
 #[test]
-fn test_query_by_type() {
+fn test_query_by_type() -> anyhow::Result<()> {
     setup_mixed_types();
     
     let type_a = TypeCode("A".into());
-    let docs = get_documents_by_type(&type_a).unwrap();
+    let docs = get_documents_by_type(&type_a)?;
     
     assert!(docs.iter().all(|d| d.document_type == type_a));
+    Ok(())
 }
 
 #[test]
-fn test_query_by_department() {
+fn test_query_by_department() -> anyhow::Result<()> {
     setup_mixed_departments();
     
     let dept_g = DeptCode('G');
-    let docs = get_documents_by_department(&dept_g).unwrap();
+    let docs = get_documents_by_department(&dept_g)?;
     
     assert!(docs.iter().all(|d| d.department == dept_g));
+    Ok(())
 }
 
 #[test]
-fn test_query_builder_complex() {
+fn test_query_builder_complex() -> anyhow::Result<()> {
     setup_test_data();
     
     let docs = DocumentQuery::new()
         .with_department(DeptCode('G'))
         .with_type(TypeCode("A".into()))
         .created_after(Utc.ymd(2025, 9, 1).and_hms(0, 0, 0))
-        .execute()
-        .unwrap();
+        .execute()?;
     
     assert!(docs.iter().all(|d| 
         d.department == DeptCode('G') &&
         d.document_type == TypeCode("A".into()) &&
         d.created_at >= Utc.ymd(2025, 9, 1).and_hms(0, 0, 0)
     ));
+    Ok(())
 }
 
 #[test]
-fn test_performance_query_10k_documents() {
+fn test_performance_query_10k_documents() -> anyhow::Result<()> {
     setup_10k_documents();
     
     let start = Instant::now();
-    let _docs = get_documents_by_type(&TypeCode("A".into())).unwrap();
+    let _docs = get_documents_by_type(&TypeCode("A".into()))?;
     let duration = start.elapsed();
     
     assert!(duration.as_millis() < 100);
+    Ok(())
 }
 ```
 

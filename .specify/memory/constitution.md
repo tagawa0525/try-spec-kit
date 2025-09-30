@@ -1,25 +1,24 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: 1.0.0 → 1.1.0
-Date: 2025-09-30
+Version Change: 1.1.0 → 1.1.1
+Date: 2025-10-01
 
 Modified Principles:
-- EXPANDED: II. Test-Driven Development - Added Rust-specific testing requirements (cargo test, integration tests)
-- NEW: VI. Rust Idioms & Safety - Added Rust-specific development standards
+- CLARIFIED: VI. Rust Idioms & Safety - Added explicit test code error handling requirements
 
 Added Sections:
-- Principle VI: Rust Idioms & Safety (Rust-specific requirements)
+- None
 
 Removed Sections:
 - None
 
 Templates Requiring Updates:
-✅ .specify/templates/plan-template.md - Updated (constitution version reference v2.1.1 → v1.1.0)
-✅ .specify/templates/spec-template.md - Aligned (language-agnostic)
-✅ .specify/templates/tasks-template.md - Aligned (supports cargo commands)
-✅ .specify/templates/agent-file-template.md - Aligned (will extract Rust commands)
-✅ .github/prompts/*.prompt.md - Aligned (language-agnostic workflow)
+✅ .specify/templates/plan-template.md - No update required (aligned)
+✅ .specify/templates/spec-template.md - No update required (aligned)
+✅ .specify/templates/tasks-template.md - No update required (aligned)
+✅ .specify/templates/agent-file-template.md - No update required (aligned)
+✅ .github/prompts/*.prompt.md - No update required (aligned)
 
 Follow-up TODOs:
 - None
@@ -106,6 +105,9 @@ All Rust code follows idiomatic patterns and leverages the type system for safet
 - MUST compile without warnings (`cargo build` clean, use `#[allow(...)]` sparingly with justification)
 - MUST pass `cargo clippy` with default lints (document exceptions in code)
 - MUST use `Result<T, E>` for recoverable errors, never panic in library code
+- MUST use `?` operator or explicit `match`/`if let` for error propagation, NO `unwrap()` or `expect()` in production code
+- Test code MUST return `Result<()>` and use `?` operator instead of `unwrap()`/`expect()` to enable proper error reporting
+- Test helper functions MUST return `Result<T>` when they perform fallible operations
 - CLI applications MAY panic for unrecoverable errors, but MUST provide clear error messages
 - MUST leverage ownership, borrowing, and lifetimes correctly (no unnecessary clones)
 - MUST use `cargo fmt` for consistent formatting
@@ -113,7 +115,7 @@ All Rust code follows idiomatic patterns and leverages the type system for safet
 - MUST prefer `std` types; external crates require justification in Complexity Tracking
 - MUST use semantic versioning for crate versions (align with constitution versioning)
 
-**Rationale**: Rust's compiler enforces memory safety and thread safety. Following idiomatic patterns maximizes these guarantees and produces maintainable code. Clippy catches common mistakes and anti-patterns.
+**Rationale**: Rust's compiler enforces memory safety and thread safety. Following idiomatic patterns maximizes these guarantees and produces maintainable code. Clippy catches common mistakes and anti-patterns. Using `?` in tests provides better error context than panics from `unwrap()`.
 
 ## Workflow Gates
 
@@ -176,4 +178,4 @@ All Rust code follows idiomatic patterns and leverages the type system for safet
 - Feedback from template execution informs amendments
 - Retrospectives identify gaps or outdated principles
 
-**Version**: 1.1.0 | **Ratified**: 2025-09-30 | **Last Amended**: 2025-09-30
+**Version**: 1.1.1 | **Ratified**: 2025-09-30 | **Last Amended**: 2025-10-01

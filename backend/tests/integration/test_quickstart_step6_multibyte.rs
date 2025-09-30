@@ -7,7 +7,7 @@ mod tests {
     
     #[tokio::test]
     #[ignore = "Integration test - will fail until implementation"]
-    async fn test_quickstart_step6_multibyte_ringi() {
+    async fn test_quickstart_step6_multibyte_ringi() -> anyhow::Result<()> {
         // Setup: Define document type "りん議" with rule: りん議I-[YY][NNN]
         // let rule_ringi = PathGenerationRule {
         //     id: None,
@@ -30,16 +30,13 @@ mod tests {
         //     active: true,
         // };
         // 
-        // db.create_document_type(&doc_type_ringi).await.unwrap();
+        // db.create_document_type(&doc_type_ringi).await?;
         
         // When: Create document in 2025
         // let type_code = TypeCode("りん議".to_string());
         // let user_id = UserId("user001".to_string());  // Section I user
         // 
-        // let result = create_document_auto(&type_code, &user_id, None).await;
-        // assert!(result.is_ok());
-        // 
-        // let doc = result.unwrap();
+        // let doc = create_document_auto(&type_code, &user_id, None).await?;
         // 
         // Then: Document number should be りん議I-25XXX format
         // assert!(doc.document_number.starts_with("りん議I-25"));
@@ -49,5 +46,6 @@ mod tests {
         // assert_eq!(doc.document_type.0, "りん議");
         
         println!("✓ Multi-byte document number: りん議I-25009");
+        Ok(())
     }
 }

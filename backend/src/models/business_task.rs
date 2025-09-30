@@ -84,8 +84,8 @@ mod tests {
         let task = BusinessTask::new("task001", "部門タスク")
             .with_department('G')
             .with_section('I');
-        assert_eq!(task.department.unwrap().0, 'G');
-        assert_eq!(task.section.unwrap().0, 'I');
+        assert_eq!(task.department.map(|d| d.0), Some('G'));
+        assert_eq!(task.section.map(|s| s.0), Some('I'));
     }
 
     #[test]

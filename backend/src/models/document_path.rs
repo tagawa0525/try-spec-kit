@@ -205,7 +205,7 @@ mod tests {
         .with_task(TaskId::new("task001"));
 
         assert!(doc.business_task.is_some());
-        assert_eq!(doc.business_task.unwrap().0, "task001");
+        assert_eq!(doc.business_task.map(|t| t.0), Some("task001".to_string()));
     }
 
     #[test]

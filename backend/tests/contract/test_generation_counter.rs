@@ -15,19 +15,21 @@ mod tests {
     
     #[test]
     #[ignore = "Integration test - will fail until implementation"]
-    fn test_get_next_counter_increments() {
+    fn test_get_next_counter_increments() -> anyhow::Result<()> {
         // Test that counter increments
-        // let counter1 = get_next_counter("A_2025_09").unwrap();
-        // let counter2 = get_next_counter("A_2025_09").unwrap();
+        // let counter1 = get_next_counter("A_2025_09")?;
+        // let counter2 = get_next_counter("A_2025_09")?;
         // assert_eq!(counter2, counter1 + 1);
+        Ok(())
     }
     
     #[test]
     #[ignore = "Integration test - will fail until implementation"]
-    fn test_get_next_counter_scope_isolation() {
+    fn test_get_next_counter_scope_isolation() -> anyhow::Result<()> {
         // Test that different scopes have independent counters
-        // let counter_a = get_next_counter("A_2025_09").unwrap();
-        // let counter_b = get_next_counter("B_2025_09").unwrap();
+        // let counter_a = get_next_counter("A_2025_09")?;
+        // let counter_b = get_next_counter("B_2025_09")?;
         // Counters should be independent
+        Ok(())
     }
 }

@@ -50,22 +50,21 @@ mod tests {
     
     #[test]
     #[ignore = "Integration test - will fail until implementation"]
-    fn test_create_document_manual_generated_flag_is_false() {
+    fn test_create_document_manual_generated_flag_is_false() -> anyhow::Result<()> {
         // Test that manually created documents have generated=false
         // let type_code = TypeCode::new("D");
         // let user_id = UserId::new("user001");
         // let absolute_path = PathBuf::from("/absolute/path/file.pdf");
         // 
-        // let result = create_document_manual(
+        // let doc = create_document_manual(
         //     "MANUAL-001".to_string(),
         //     &type_code,
         //     absolute_path,
         //     &user_id,
         //     None,
-        // );
+        // )?;
         // 
-        // assert!(result.is_ok());
-        // let doc = result.unwrap();
         // assert!(!doc.generated);  // Manual documents should have generated=false
+        Ok(())
     }
 }

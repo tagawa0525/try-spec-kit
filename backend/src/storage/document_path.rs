@@ -241,10 +241,10 @@ mod tests {
     use crate::storage::{department, section, user, document_type};
     use crate::models::{Department, Section, User, DocumentType, PathGenerationRule};
 
-    async fn setup_test_data(pool: &SqlitePool) {
+    async fn setup_test_data(pool: &SqlitePool) -> Result<()> {
         // Create department
         let dept = Department::new('G', "総務");
-        department::create_department(pool, &dept).await.unwrap();
+        department::create_department(pool, &dept).await?;
         
         // Create section
         let sec = Section {
@@ -252,67 +252,74 @@ mod tests {
             name: "インフラ".to_string(),
             department: DeptCode::new('G'),
         };
-        section::create_section(pool, &sec).await.unwrap();
+        section::create_section(pool, &sec).await?;
         
         // Create user
         let u = User::new("user001", "田川太郎", 'G', 'I');
-        user::create_user(pool, &u).await.unwrap();
+        user::create_user(pool, &u).await?;
         
         // Create document type
         let rule = PathGenerationRule::example_agi();
         let doc_type = DocumentType::new("A", "契約書", "/docs/contracts/", rule);
-        document_type::create_document_type(pool, &doc_type).await.unwrap();
+        document_type::create_document_type(pool, &doc_type).await?;
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_create_and_get_document_path() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_create_and_get_document_path() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
             UserId::new("user001"),
-            PathBuf::from("/docs/contracts/AGI2509001.pdf"),
+            PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
         
-        create_document_path(&pool, &doc).await.unwrap();
+        create_document_path(&pool, &doc).await?;
         
-        let retrieved = get_document_path(&pool, &doc.id).await.unwrap();
+        let retrieved = get_document_path(&pool, &doc.id).await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().document_number, "AGI2509001");
+        if let Some(doc) = retrieved {
+            assert_eq!(doc.document_number, "AGI-2509001");
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_get_document_path_by_number() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_get_document_path_by_number() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
             UserId::new("user001"),
-            PathBuf::from("/docs/contracts/AGI2509001.pdf"),
+            PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
         
-        create_document_path(&pool, &doc).await.unwrap();
+        create_document_path(&pool, &doc).await?;
         
-        let retrieved = get_document_path_by_number(&pool, "AGI2509001").await.unwrap();
+        let retrieved = get_document_path_by_number(&pool, "AGI-2509001").await?;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().id, doc.id);
+        if let Some(retrieved_doc) = retrieved {
+            assert_eq!(retrieved_doc.id, doc.id);
+        }
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_logical_deletion() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_logical_deletion() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
@@ -320,36 +327,39 @@ mod tests {
             PathBuf::from("/docs/test.pdf"),
         );
         
-        create_document_path(&pool, &doc).await.unwrap();
+        create_document_path(&pool, &doc).await?;
         
         // Delete
-        delete_document_path(&pool, &doc.id).await.unwrap();
+        delete_document_path(&pool, &doc.id).await?;
         
-        let retrieved = get_document_path(&pool, &doc.id).await.unwrap().unwrap();
+        let retrieved = get_document_path(&pool, &doc.id).await?
+            .ok_or_else(|| crate::error::Error::NotFound("Document not found".to_string()))?;
         assert!(retrieved.deleted);
         
         // Should not appear in non-deleted list
-        let list = list_document_paths(&pool, false).await.unwrap();
+        let list = list_document_paths(&pool, false).await?;
         assert_eq!(list.len(), 0);
         
         // Should appear in full list
-        let full_list = list_document_paths(&pool, true).await.unwrap();
+        let full_list = list_document_paths(&pool, true).await?;
         assert_eq!(full_list.len(), 1);
         
         // Restore
-        restore_document_path(&pool, &doc.id).await.unwrap();
+        restore_document_path(&pool, &doc.id).await?;
         
-        let restored = get_document_path(&pool, &doc.id).await.unwrap().unwrap();
+        let restored = get_document_path(&pool, &doc.id).await?
+            .ok_or_else(|| crate::error::Error::NotFound("Document not found".to_string()))?;
         assert!(!restored.deleted);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn test_update_document_path() {
-        let pool = init_db_pool("sqlite::memory:").await.unwrap();
-        setup_test_data(&pool).await;
+    async fn test_update_document_path() -> Result<()> {
+        let pool = init_db_pool("sqlite::memory:").await?;
+        setup_test_data(&pool).await?;
         
         let doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
@@ -357,12 +367,14 @@ mod tests {
             PathBuf::from("/old/path.pdf"),
         );
         
-        create_document_path(&pool, &doc).await.unwrap();
+        create_document_path(&pool, &doc).await?;
         
         let new_path = PathBuf::from("/new/path.pdf");
-        update_document_path(&pool, &doc.id, new_path.clone()).await.unwrap();
+        update_document_path(&pool, &doc.id, new_path.clone()).await?;
         
-        let updated = get_document_path(&pool, &doc.id).await.unwrap().unwrap();
+        let updated = get_document_path(&pool, &doc.id).await?
+            .ok_or_else(|| crate::error::Error::NotFound("Document not found".to_string()))?;
         assert_eq!(updated.file_path, new_path);
+        Ok(())
     }
 }
