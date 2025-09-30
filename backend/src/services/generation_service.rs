@@ -115,7 +115,7 @@ mod tests {
         
         // Should be like "AGI2510001" (AGI + YY + MM + counter)
         assert!(number.starts_with("AGI"));
-        assert_eq!(number.len(), 9); // AGI(3) + YY(2) + MM(2) + NNN(3) = 10 but may vary
+        assert_eq!(number.len(), 10); // AGI(3) + YY(2) + MM(2) + NNN(3) = 10
     }
 
     #[tokio::test]

@@ -180,7 +180,7 @@ pub async fn delete_document(
     id: &DocumentId,
 ) -> Result<()> {
     // Get existing document
-    let mut doc = document_path::get_document_path(pool, id).await?
+    let doc = document_path::get_document_path(pool, id).await?
         .ok_or_else(|| crate::error::Error::NotFound(
             format!("Document '{}' not found", id.0)
         ))?;
@@ -192,12 +192,8 @@ pub async fn delete_document(
         ));
     }
     
-    // Mark as deleted
-    doc.deleted = true;
-    doc.updated_at = Utc::now();
-    
-    // Save to database
-    document_path::update_document_path(pool, &doc.id, doc.file_path).await?;
+    // Delete the document (logical deletion)
+    document_path::delete_document_path(pool, id).await?;
     
     Ok(())
 }

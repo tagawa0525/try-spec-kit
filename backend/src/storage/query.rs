@@ -263,6 +263,61 @@ pub async fn get_documents_by_task(
     Ok(docs)
 }
 
+/// Search documents by text (searches document number and file path)
+pub async fn search_documents_by_text(
+    pool: &SqlitePool,
+    search_text: &str,
+    include_deleted: bool,
+) -> Result<Vec<DocumentPath>> {
+    let deleted_filter = if include_deleted { 1 } else { 0 };
+    let search_pattern = format!("%{}%", search_text);
+    
+    let rows = sqlx::query!(
+        r#"
+        SELECT id, document_number, document_type_code, department_code, section_code,
+               business_task_id, user_id, file_path, created_at, updated_at, generated, deleted
+        FROM documents
+        WHERE (document_number LIKE ? OR file_path LIKE ?) 
+              AND (deleted = 0 OR ? = 1)
+        ORDER BY created_at DESC
+        "#,
+        search_pattern,
+        search_pattern,
+        deleted_filter
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let docs = rows
+        .into_iter()
+        .filter_map(|r| {
+            let dept_char = r.department_code.chars().next()?;
+            let section_char = r.section_code.chars().next()?;
+            
+            Some(DocumentPath {
+                id: DocumentId::new(r.id),
+                document_number: r.document_number,
+                document_type: TypeCode::new(r.document_type_code),
+                department: DeptCode::new(dept_char),
+                section: SectionCode::new(section_char),
+                business_task: r.business_task_id.map(TaskId::new),
+                user: UserId::new(r.user_id),
+                file_path: PathBuf::from(r.file_path),
+                created_at: DateTime::parse_from_rfc3339(&r.created_at)
+                    .map(|dt| dt.with_timezone(&Utc))
+                    .unwrap_or_else(|_| Utc::now()),
+                updated_at: DateTime::parse_from_rfc3339(&r.updated_at)
+                    .map(|dt| dt.with_timezone(&Utc))
+                    .unwrap_or_else(|_| Utc::now()),
+                generated: r.generated != 0,
+                deleted: r.deleted != 0,
+            })
+        })
+        .collect();
+
+    Ok(docs)
+}
+
 /// Search documents with multiple criteria (builder pattern)
 pub struct DocumentQuery {
     type_code: Option<TypeCode>,

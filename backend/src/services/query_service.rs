@@ -102,26 +102,36 @@ impl DocumentQueryBuilder {
 
     /// Execute the query
     pub async fn execute(self, pool: &SqlitePool) -> Result<Vec<DocumentPath>> {
-        // For now, use the most specific query available
-        // In a full implementation, this would build a dynamic SQL query
+        // Get all documents first
+        let mut docs = query::get_all_documents(pool, self.include_deleted).await?;
         
-        if let Some(task_id) = self.task {
-            return query::get_documents_by_task(pool, &task_id, self.include_deleted).await;
+        // Filter by type_code if specified
+        if let Some(ref tc) = self.type_code {
+            docs.retain(|d| &d.document_type == tc);
         }
         
-        if let Some(section_code) = self.section {
-            return query::get_documents_by_section(pool, &section_code, self.include_deleted).await;
+        // Filter by department if specified
+        if let Some(ref dept) = self.department {
+            docs.retain(|d| &d.department == dept);
         }
         
-        if let Some(dept_code) = self.department {
-            return query::get_documents_by_department(pool, &dept_code, self.include_deleted).await;
+        // Filter by section if specified
+        if let Some(ref sec) = self.section {
+            docs.retain(|d| &d.section == sec);
         }
         
-        if let Some(type_code) = self.type_code {
-            return query::get_documents_by_type(pool, &type_code, self.include_deleted).await;
+        // Filter by task if specified
+        if let Some(ref task) = self.task {
+            docs.retain(|d| {
+                if let Some(ref dt) = d.business_task {
+                    dt == task
+                } else {
+                    false
+                }
+            });
         }
         
-        query::get_all_documents(pool, self.include_deleted).await
+        Ok(docs)
     }
 }
 
