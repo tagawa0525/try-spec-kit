@@ -45,7 +45,7 @@
 - [x] T001 Create Rust workspace structure: `backend/src/{models,storage,services,api}`, `backend/tests/{contract,integration,unit}`
 - [x] T002 Initialize Cargo.toml with dependencies: axum 0.7, sqlx 0.7 (sqlite, runtime-tokio), tokio 1.35, serde, chrono, thiserror
 - [x] T003 [P] Configure cargo clippy and rustfmt in backend/rustfmt.toml and backend/.cargo/config.toml
-- [ ] T004 Install sqlx-cli: `cargo install sqlx-cli --no-default-features --features sqlite`
+- [x] T004 Install sqlx-cli: `cargo install sqlx-cli --no-default-features --features sqlite`
 
 ### Frontend Setup
 - [x] T005 Create SvelteKit project structure: `frontend/src/{routes,lib/components,lib/api}`
@@ -115,14 +115,14 @@
 - [x] T045 DocumentPath model in backend/src/models/document_path.rs
 
 ### Storage Layer - sqlx Queries (T046-T053)
-- [ ] T046 [P] Department CRUD with sqlx::query! in backend/src/storage/department.rs
-- [ ] T047 [P] Section CRUD with sqlx::query! in backend/src/storage/section.rs
-- [ ] T048 [P] User CRUD with sqlx::query! in backend/src/storage/user.rs
-- [ ] T049 [P] BusinessTask CRUD with sqlx::query! in backend/src/storage/business_task.rs
-- [ ] T050 [P] DocumentType CRUD with sqlx::query! in backend/src/storage/document_type.rs
-- [ ] T051 DocumentPath CRUD with sqlx::query! in backend/src/storage/document_path.rs
-- [ ] T052 Counter management (get_next_counter, increment) in backend/src/storage/counter.rs
-- [ ] T053 Query operations (by_type, by_dept, by_section, by_task) in backend/src/storage/query.rs
+- [x] T046 [P] Department CRUD with sqlx::query! in backend/src/storage/department.rs
+- [x] T047 [P] Section CRUD with sqlx::query! in backend/src/storage/section.rs
+- [x] T048 [P] User CRUD with sqlx::query! in backend/src/storage/user.rs
+- [x] T049 [P] BusinessTask CRUD with sqlx::query! in backend/src/storage/business_task.rs
+- [x] T050 [P] DocumentType CRUD with sqlx::query! in backend/src/storage/document_type.rs
+- [x] T051 DocumentPath CRUD with sqlx::query! in backend/src/storage/document_path.rs
+- [x] T052 Counter management (get_next_counter, increment) in backend/src/storage/counter.rs
+- [x] T053 Query operations (by_type, by_dept, by_section, by_task) in backend/src/storage/query.rs
 
 ### Services - Business Logic (T054-T057)
 - [ ] T054 Document number generation service (apply RuleComponent, format output) in backend/src/services/generation_service.rs
