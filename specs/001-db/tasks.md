@@ -42,20 +42,20 @@
 ## Phase 3.1: Setup & Infrastructure (T001-T010)
 
 ### Backend Setup
-- [ ] T001 Create Rust workspace structure: `backend/src/{models,storage,services,api}`, `backend/tests/{contract,integration,unit}`
-- [ ] T002 Initialize Cargo.toml with dependencies: axum 0.7, sqlx 0.7 (sqlite, runtime-tokio), tokio 1.35, serde, chrono, thiserror
-- [ ] T003 [P] Configure cargo clippy and rustfmt in backend/rustfmt.toml and backend/.cargo/config.toml
+- [x] T001 Create Rust workspace structure: `backend/src/{models,storage,services,api}`, `backend/tests/{contract,integration,unit}`
+- [x] T002 Initialize Cargo.toml with dependencies: axum 0.7, sqlx 0.7 (sqlite, runtime-tokio), tokio 1.35, serde, chrono, thiserror
+- [x] T003 [P] Configure cargo clippy and rustfmt in backend/rustfmt.toml and backend/.cargo/config.toml
 - [ ] T004 Install sqlx-cli: `cargo install sqlx-cli --no-default-features --features sqlite`
 
 ### Frontend Setup
-- [ ] T005 Create SvelteKit project structure: `frontend/src/{routes,lib/components,lib/api}`
-- [ ] T006 Initialize package.json with dependencies: svelte 4.0, @sveltejs/kit, typescript 5.0, vite 5.0
-- [ ] T007 [P] Configure TypeScript in frontend/tsconfig.json and frontend/svelte.config.js
+- [x] T005 Create SvelteKit project structure: `frontend/src/{routes,lib/components,lib/api}`
+- [x] T006 Initialize package.json with dependencies: svelte 4.0, @sveltejs/kit, typescript 5.0, vite 5.0
+- [x] T007 [P] Configure TypeScript in frontend/tsconfig.json and frontend/svelte.config.js
 
 ### Database Setup
-- [ ] T008 Create SQLite migration 001_initial_schema.sql in backend/migrations/: Create tables (departments, sections, users, business_tasks, document_types, generation_rules, documents, counters)
-- [ ] T009 Create SQLite migration 002_indexes.sql in backend/migrations/: Create indexes (document_number, document_type, department, section, business_task, deleted)
-- [ ] T010 Configure SQLite WAL mode in backend/src/storage/db.rs: `PRAGMA journal_mode=WAL`
+- [x] T008 Create SQLite migration 001_initial_schema.sql in backend/migrations/: Create tables (departments, sections, users, business_tasks, document_types, generation_rules, documents, counters)
+- [x] T009 Create SQLite migration 002_indexes.sql in backend/migrations/: Create indexes (document_number, document_type, department, section, business_task, deleted)
+- [x] T010 Configure SQLite WAL mode in backend/src/storage/db.rs: `PRAGMA journal_mode=WAL`
 
 ---
 
