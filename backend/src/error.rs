@@ -6,6 +6,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("Not found: {0}")]
+    NotFound(String),
+    
+    #[error("Validation error: {0}")]
+    Validation(String),
+    
     #[error("Document not found: {0}")]
     DocumentNotFound(String),
     

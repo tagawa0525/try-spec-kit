@@ -125,10 +125,10 @@
 - [x] T053 Query operations (by_type, by_dept, by_section, by_task) in backend/src/storage/query.rs
 
 ### Services - Business Logic (T054-T057)
-- [ ] T054 Document number generation service (apply RuleComponent, format output) in backend/src/services/generation_service.rs
-- [ ] T055 Document creation service (validate, generate number, save path) in backend/src/services/document_service.rs
-- [ ] T056 Organization service (dept/section/user management) in backend/src/services/organization_service.rs
-- [ ] T057 Query service (build queries, filter, include_deleted) in backend/src/services/query_service.rs
+- [x] T054 Document number generation service (apply RuleComponent, format output) in backend/src/services/generation_service.rs
+- [x] T055 Document creation service (validate, generate number, save path) in backend/src/services/document_service.rs
+- [x] T056 Organization service (dept/section/user management) in backend/src/services/organization_service.rs
+- [x] T057 Query service (build queries, filter, include_deleted) in backend/src/services/query_service.rs
 
 ### API Layer - axum Handlers (T058-T063)
 - [ ] T058 POST /api/documents (auto-generated) handler in backend/src/api/documents/create_auto.rs
