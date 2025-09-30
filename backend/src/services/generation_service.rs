@@ -119,7 +119,7 @@ mod tests {
         let number =
             generate_document_number(&pool, &rule, &type_code, &dept_code, &section_code).await?;
 
-        // Should be like "AGI2510001" (AGI + YY + MM + counter)
+        // Should be like "AGI-2510001" (AGI + YY + MM + counter)
         assert!(number.starts_with("AGI"));
         assert_eq!(number.len(), 10); // AGI(3) + YY(2) + MM(2) + NNN(3) = 10
         Ok(())

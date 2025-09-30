@@ -2,7 +2,13 @@
 # Feature Specification: Document Path Management Database
 
 **Feature Branch**: `001-db`  
-**Create- **FR-005**: System MUST support department and section codes such as GI (General Affa- **DocumentPath**: Represents a stored file path with its unique identifier and associated metadata
+**Create- **FR-005**: System MUST support - **FR-012**: System MUST allow deleting document paths by identifier (logical deletion - mark as deleted but retain data for audit purposes)
+- **FR-013**: System MUST persist document path data across application restarts (indefinite retention unless explicitly deleted)
+- **FR-014**: System MUST handle up to approximately 10,000 document paths efficiently
+- **FR-015**: System MUST provide search functionality for locating paths
+- **FR-016**: System MUST support multiple concurrent users for read operations
+- **FR-017**: System MUST enforce exclusive access for write operations (updates and deletions)
+- **FR-018**: System MUST validate absolute file paths before storageent and section codes such as GI (General Affa- **DocumentPath**: Represents a stored file path with its unique identifier and associated metadata
   - Unique system identifier (system-generated)
   - Document number (generated according to document type's rule, e.g., "AGI-2509001", "りん議I-25009")
   - Document type reference
@@ -116,8 +122,8 @@ As a department user, I want to manage document file paths through a flexible ru
 - What happens when querying a non-existent identifier? [NEEDS CLARIFICATION: Return empty result or error?]
 - What happens when multiple users attempt to update the same path simultaneously? System MUST reject concurrent write attempts and notify the user
 - What happens when the path points to a file that no longer exists on disk? [NEEDS CLARIFICATION: Track file existence or just store paths?]
-- What happens when the auto-increment counter reaches its maximum (999)? System MUST handle counter overflow appropriately (likely error or month-specific namespace exhaustion notification)
-- How does system handle changes to path generation rules for existing documents? System MUST maintain backwards compatibility with previously generated paths
+- What happens when the auto-increment counter reaches its maximum (999 or configured digit limit)? System MUST return an error indicating counter exhaustion and notify administrators. For month-based counters, the counter resets in the next month; for year-based counters, the counter resets in the next year.
+- How does system handle changes to path generation rules for existing documents? System MUST maintain backwards compatibility with previously generated paths (existing documents retain their original numbers)
 - How does system handle cross-platform path differences (Unix/Windows)? System MUST store paths as-is and handle platform-specific formats correctly
 - What happens when a user attempts to create a document with a type not associated with their department and section? System MUST reject the operation and notify the user
 - How does system handle department restructuring (users moving between departments)? System MUST maintain historical document ownership while allowing department updates
@@ -136,42 +142,39 @@ As a department user, I want to manage document file paths through a flexible ru
   - Digit counts for each component
   - Year format (2 or 4 digits)
   - Whether to include month component
-- **FR-004**: System MUST support document type codes including: A (contractually required documents), C (internal memos), D (received documents), Q (quality-related documents), りん議 (ringi/approval documents), 教育 (training records), and other customizable types
+  - PathGenerationRule entities to define and manage these configurations with counter scope settings
+- **FR-004**: System MUST support document type codes including: A (contractually required documents), C (internal memos), D (received documents), Q (quality-related documents), りん議 (ringi/approval documents; 稟議書), 教育 (training records), and other customizable types
 - **FR-005**: System MUST support department and section codes such as GI (General Affairs G, Infrastructure I), KT (Analysis K, Technology T), and other organizational units
-- **FR-006**: System MUST automatically generate document numbers based on document type-specific rules
-- **FR-007**: System MUST automatically generate file paths by combining root directory (defined per document type) with generated document number
-- **FR-008**: System MUST maintain auto-increment counters with scope defined per document type rule (e.g., per type+section+year, or per type+year, etc.)
-- **FR-009**: System MUST allow manual addition of document paths when automatic generation is not applicable
-- **FR-010**: System MUST allow retrieving document paths by their unique identifier or document number
-- **FR-011**: System MUST allow querying all stored document paths
-- **FR-012**: System MUST allow querying paths filtered by document type
-- **FR-013**: System MUST allow updating existing document paths
-- **FR-014**: System MUST allow deleting document paths by identifier (logical deletion - mark as deleted but retain data for audit purposes)
-- **FR-015**: System MUST persist document path data across application restarts (indefinite retention unless explicitly deleted)
-- **FR-016**: System MUST handle up to approximately 10,000 document paths efficiently
-- **FR-017**: System MUST provide search functionality for locating paths
-- **FR-018**: System MUST support multiple concurrent users for read operations
-- **FR-019**: System MUST enforce exclusive access for write operations (updates and deletions)
-- **FR-020**: System MUST validate absolute file paths before storage
-- **FR-021**: System MUST support both local absolute paths (e.g., /home/user/docs or C:\Users\docs) and Windows UNC network paths (e.g., \\server\share\docs)
-- **FR-022**: System MUST support metadata storage including creation timestamp and last modified timestamp
-- **FR-023**: System MUST provide both a programmatic API and user interface for accessing path data
-- **FR-024**: System MUST allow programmatic access for integration with other applications
-- **FR-025**: System MUST support configuration and modification of path generation rules per document type
-- **FR-026**: System MUST associate users with departments and sections
-- **FR-027**: System MUST associate document types with specific department and section combinations (or allow type to be available across multiple dept/section combinations)
-- **FR-028**: System MUST associate documents with business tasks
-- **FR-029**: System MUST allow querying documents by department
-- **FR-030**: System MUST allow querying documents by section
-- **FR-031**: System MUST allow querying documents by business task
-- **FR-032**: System MUST enforce that users can only create documents using document types valid for their department and section
-- **FR-033**: System MUST support both single-byte (A, C, D, Q) and multi-byte (りん議, 教育) document type identifiers
-- **FR-034**: System MUST allow configuration of root directory path per document type, supporting both local absolute paths and Windows UNC paths
-- **FR-035**: System MUST enforce department and section authorization for document creation (users can only create documents with types valid for their dept/section)
-- **FR-036**: System SHOULD support future integration with external authentication providers (SSO, LDAP, Active Directory) for user identity and department/section assignment
-- **FR-037**: System MAY initially operate without built-in authentication, assuming users are pre-authenticated by the hosting environment
-- **FR-038**: System MUST support logical deletion for document paths (mark as deleted but retain data for audit/historical purposes)
-- **FR-039**: System MUST retain all document path data indefinitely unless explicitly deleted by authorized users
+- **FR-006**: System MUST automatically generate document numbers and file paths based on document type-specific rules (number generation according to rule format + path construction by combining root directory with generated number)
+- **FR-007**: System MUST maintain auto-increment counters with scope defined per document type rule (e.g., per type+section+year, or per type+year, etc.)
+- **FR-008**: System MUST allow manual addition of document paths with manually-specified document numbers when automatic generation is not applicable (generation rules are NOT applied to manual entries)
+- **FR-009**: System MUST allow querying all stored document paths
+- **FR-010**: System MUST allow querying paths filtered by document type
+- **FR-011**: System MUST allow updating existing document paths
+- **FR-012**: System MUST allow deleting document paths by identifier using logical deletion (mark as deleted with boolean flag but retain data indefinitely for audit purposes)
+- **FR-013**: System MUST persist document path data across application restarts (indefinite retention unless explicitly deleted)
+- **FR-014**: System MUST handle up to approximately 10,000 document paths efficiently (query response time <100ms, document creation <10ms)
+- **FR-015**: System MUST provide search functionality for locating paths
+- **FR-016**: System MUST support multiple concurrent users for read operations
+- **FR-017**: System MUST enforce exclusive access for write operations (updates and deletions)
+- **FR-018**: System MUST validate absolute file paths before storage
+- **FR-019**: System MUST support both local absolute paths (e.g., /home/user/docs or C:\Users\docs) and Windows UNC network paths (e.g., \\server\share\docs)
+- **FR-020**: System MUST support metadata storage including creation timestamp and last modified timestamp
+- **FR-021**: System MUST provide both a programmatic API and user interface for accessing path data
+- **FR-022**: System MUST allow programmatic access for integration with other applications
+- **FR-023**: System MUST support configuration and modification of path generation rules per document type, with changes applying only to new documents (existing documents retain their original numbers and paths for backwards compatibility)
+- **FR-024**: System MUST associate users with departments and sections
+- **FR-025**: System MUST associate document types with specific department and section combinations, and MUST validate that users can only create documents using document types valid for their department and section (or allow type to be available across multiple dept/section combinations)
+- **FR-026**: System MUST associate documents with business tasks
+- **FR-027**: System MUST allow querying documents by department
+- **FR-028**: System MUST allow querying documents by section
+- **FR-029**: System MUST allow querying documents by business task
+- **FR-030**: System MUST enforce that users can only create documents using document types valid for their department and section
+- **FR-031**: System MUST support both single-byte (A, C, D, Q) and multi-byte (りん議, 教育) document type identifiers
+- **FR-032**: System MUST allow configuration of root directory path per document type, supporting both local absolute paths and Windows UNC paths
+- **FR-033**: System MUST enforce department and section authorization for document creation (users can only create documents with types valid for their dept/section)
+- **FR-034**: System SHOULD support future integration with external authentication providers (SSO, LDAP, Active Directory) for user identity and department/section assignment
+- **FR-035**: System MAY initially operate without built-in authentication, assuming users are pre-authenticated by the hosting environment
 
 ### Key Entities *(include if feature involves data)*
 

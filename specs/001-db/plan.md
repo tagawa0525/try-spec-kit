@@ -336,7 +336,7 @@ frontend/
   2. 組織構造セットアップ検証
   3. ユーザー作成検証
   4. DocumentType定義検証
-  5. 自動生成（AGI2509001）検証
+  5. 自動生成（AGI-2509001）検証
   6. マルチバイト（りん議I-25009）検証
   7. クエリ検証
   8. 論理削除検証
@@ -348,7 +348,7 @@ frontend/
 - API契約: 15関数 × 2タスク（契約テスト, 実装） = 30タスク
 - 統合テスト: 10シナリオ × 1タスク = 10タスク
 - インフラ: 5タスク（DB setup, axum server, Svelte frontend基盤, CI/CD, deployment）
-- **合計推定**: 65-70タスク
+- **合計推定**: 65-75タスク（推定の不確実性を考慮）
 
 **7. Backend/Frontend Split**:
 - Backend（Rust+axum+sqlx）: 55-60タスク

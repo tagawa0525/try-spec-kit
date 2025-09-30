@@ -175,7 +175,7 @@ let rule_ringi = PathGenerationRule {
 
 let type_ringi = DocumentType {
     code: TypeCode("りん議".to_string()),
-    description: "稟議書".to_string(),
+    description: "りん議（稟議書）".to_string(),
     department: None,
     section: Some(SectionCode('I')),
     root_directory: PathBuf::from("/docs/ringi/"),

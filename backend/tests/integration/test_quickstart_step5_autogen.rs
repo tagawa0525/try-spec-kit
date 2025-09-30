@@ -1,4 +1,4 @@
-//! Integration test: Quickstart Step 5 - Auto-generate AGI2509001
+//! Integration test: Quickstart Step 5 - Auto-generate AGI-2509001
 
 #[cfg(test)]
 mod tests {
@@ -16,8 +16,8 @@ mod tests {
         // 
         // let doc = create_document_auto(&type_code, &user_id, None).await?;
         // 
-        // Then: Document number should be AGI2509001
-        // assert_eq!(doc.document_number, "AGI2509001");
+        // Then: Document number should be AGI-2509001
+        // assert_eq!(doc.document_number, "AGI-2509001");
         // assert_eq!(doc.document_type.0, "A");
         // assert_eq!(doc.department.0, 'G');
         // assert_eq!(doc.section.0, 'I');
@@ -25,7 +25,7 @@ mod tests {
         // assert!(!doc.deleted);
         // assert!(doc.file_path.to_string_lossy().starts_with("/docs/contracts/"));
         
-        println!("✓ Auto-generated: AGI2509001");
+        println!("✓ Auto-generated: AGI-2509001");
         Ok(())
     }
     

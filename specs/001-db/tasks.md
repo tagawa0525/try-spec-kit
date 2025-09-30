@@ -90,7 +90,7 @@
 - [x] T028 [P] Integration test Step 2: Organization setup in backend/tests/integration/test_quickstart_step2_org.rs
 - [x] T029 [P] Integration test Step 3: User creation in backend/tests/integration/test_quickstart_step3_user.rs
 - [x] T030 [P] Integration test Step 4: DocumentType definition in backend/tests/integration/test_quickstart_step4_type.rs
-- [x] T031 [P] Integration test Step 5: Auto-generate AGI2509001 in backend/tests/integration/test_quickstart_step5_autogen.rs
+- [x] T031 [P] Integration test Step 5: Auto-generate AGI-2509001 in backend/tests/integration/test_quickstart_step5_autogen.rs
 - [x] T032 [P] Integration test Step 6: Multi-byte りん議I-25009 in backend/tests/integration/test_quickstart_step6_multibyte.rs
 - [x] T033 [P] Integration test Step 7: Query by type in backend/tests/integration/test_quickstart_step7_query.rs
 - [x] T034 [P] Integration test Step 8: Logical deletion in backend/tests/integration/test_quickstart_step8_delete.rs
@@ -352,5 +352,27 @@ Task: "DocumentDetails component in frontend/src/lib/components/DocumentDetails.
 - Frontend implementation (optional)
 - Performance testing
 - Production deployment
+
+---
+
+## Phase 4: Future Extensions (Placeholder)
+
+These tasks are deferred to future releases and are not part of the current implementation scope. They are documented here for planning purposes.
+
+### Authentication & Authorization (FR-034, FR-035)
+- [ ] T073 Research SSO/LDAP/Active Directory integration options
+- [ ] T074 Design authentication middleware for axum
+- [ ] T075 Implement LDAP user lookup and department/section mapping
+- [ ] T076 Add SSO provider integration (e.g., OAuth2/OIDC)
+- [ ] T077 Update User model to support external authentication identities
+- [ ] T078 Add authentication integration tests
+
+**Rationale**: Current implementation assumes pre-authenticated users in hosting environment. External authentication will be added when deployment requirements are finalized.
+
+**Dependencies**: Requires infrastructure decisions (SSO provider choice, LDAP server configuration)
+
+---
+
+**Phase 4 Status**: Not started (future work)
 
 ````

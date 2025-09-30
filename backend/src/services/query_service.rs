@@ -175,12 +175,12 @@ mod tests {
 
         // Create documents
         let doc1 = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
             UserId::new("user001"),
-            PathBuf::from("/docs/contracts/AGI2509001.pdf"),
+            PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
 
         let doc2 = DocumentPath::new_auto(

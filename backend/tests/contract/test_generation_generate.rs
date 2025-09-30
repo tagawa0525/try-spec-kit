@@ -22,7 +22,7 @@ mod tests {
     #[ignore = "Integration test - will fail until implementation"]
     fn test_generate_document_number_format() {
         // Test that generated numbers follow the rule format
-        // Example: AGI2509001 for TypeDeptSection + YYMM + counter
+        // Example: AGI-2509001 for TypeDeptSection + YYMM + counter
     }
     
     #[test]

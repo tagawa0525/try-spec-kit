@@ -10,7 +10,7 @@ use std::path::PathBuf;
 pub struct DocumentPath {
     /// 文書固有識別子
     pub id: DocumentId,
-    /// 文書番号 (例: "AGI2509001", "りん議I-25009")
+    /// 文書番号 (例: "AGI-2509001", "りん議I-25009")
     pub document_number: String,
     /// 文書種類
     pub document_type: TypeCode,
@@ -162,15 +162,15 @@ mod tests {
     #[test]
     fn test_document_path_new_auto() {
         let doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
             UserId::new("user001"),
-            PathBuf::from("/docs/contracts/AGI2509001.pdf"),
+            PathBuf::from("/docs/contracts/AGI-2509001.pdf"),
         );
 
-        assert_eq!(doc.document_number, "AGI2509001");
+        assert_eq!(doc.document_number, "AGI-2509001");
         assert!(doc.generated);
         assert!(!doc.deleted);
         assert!(doc.business_task.is_none());
@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn test_document_path_with_task() {
         let doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
@@ -211,7 +211,7 @@ mod tests {
     #[test]
     fn test_document_path_update_path() {
         let mut doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
@@ -231,7 +231,7 @@ mod tests {
     #[test]
     fn test_document_path_delete() {
         let mut doc = DocumentPath::new_auto(
-            "AGI2509001",
+            "AGI-2509001",
             TypeCode::new("A"),
             DeptCode::new('G'),
             SectionCode::new('I'),
