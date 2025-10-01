@@ -1,3 +1,39 @@
+# Quickstart: Document Path Management (development)
+
+Paths (absolute):
+- Spec directory: /home/tagawa/try-spec-kit-via-vs_code/specs/001-db
+- Backend: /home/tagawa/try-spec-kit-via-vs_code/backend
+- Frontend: /home/tagawa/try-spec-kit-via-vs_code/frontend
+
+Prerequisites
+- Rust toolchain (>=1.90)
+- Node.js & npm (for frontend)
+
+Start backend (development)
+```bash
+cd /home/tagawa/try-spec-kit-via-vs_code/backend
+cargo run
+```
+
+Start frontend (development)
+```bash
+cd /home/tagawa/try-spec-kit-via-vs_code/frontend
+npm run dev
+```
+
+Create a document (auto-generated number)
+- POST /api/documents { type_code, user_id, task_id? }
+
+Query documents
+- GET /api/documents
+- GET /api/documents/{id}
+- GET /api/documents/number/{number}
+
+Run tests (backend)
+```bash
+cd /home/tagawa/try-spec-kit-via-vs_code/backend
+cargo test
+```
 # Quickstart Validation
 
 **Feature**: Document Path Management Database  

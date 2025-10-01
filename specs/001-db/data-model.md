@@ -1,3 +1,71 @@
+# Data Model: Document Path Management
+
+Path: /home/tagawa/try-spec-kit-via-vs_code/specs/001-db/data-model.md
+
+Date: 2025-10-02
+
+Entities
+
+- Department
+  - code: string (1 char)
+  - name: string
+  - sections: list of Section.code
+
+- Section
+  - code: string (1 char)
+  - name: string
+  - department_code: string (FK)
+
+- User
+  - id: string
+  - name: string
+  - department_code: string
+  - section_code: string
+
+- BusinessTask
+  - id: string
+  - name: string
+  - department_code: string (optional)
+  - section_code: string (optional)
+  - active: boolean
+
+- PathGenerationRule
+  - id: integer
+  - components: JSON (ordered list)
+  - separators: JSON
+  - counter_scope: string
+  - counter_digits: integer
+
+- DocumentType
+  - code: string
+  - description: string
+  - root_directory: string
+  - generation_rule_id: integer (FK)
+  - active: boolean
+
+- DocumentPath
+  - id: uuid
+  - document_number: string
+  - document_type_code: string (FK)
+  - department_code: string
+  - section_code: string
+  - business_task_id: string (nullable)
+  - user_id: string
+  - file_path: string
+  - generated: boolean
+  - deleted: boolean
+  - created_at: timestamp
+  - updated_at: timestamp
+
+Relationships
+- Department 1..* Section
+- DocumentType -> PathGenerationRule
+- DocumentPath -> DocumentType, User, BusinessTask
+
+Validation rules
+- file_path MUST be an absolute path (Unix, Windows local, or Windows UNC)
+- document_number MUST conform to the DocumentType generation rule if generated=true
+- generated=false entries may provide arbitrary document_number but MUST be unique
 # Data Model
 
 **Feature**: Document Path Management Database  

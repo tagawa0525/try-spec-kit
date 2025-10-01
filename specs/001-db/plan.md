@@ -1,221 +1,219 @@
 
-# Implementation Plan: [FEATURE]
+# 実装計画: 文書パス管理データベース
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**ブランチ**: `001-db` | **日付**: 2025-10-02 | **仕様書**: [spec.md](spec.md)
+**入力**: `/specs/001-db/spec.md` からの機能仕様書
 
-## Execution Flow (/plan command scope)
+## 実行フロー（/planコマンドのスコープ）
 ```
-1. Load feature spec from Input path
-   → If not found: ERROR "No feature spec at {path}"
-2. Fill Technical Context (scan for NEEDS CLARIFICATION)
-   → Detect Project Type from file system structure or context (web=frontend+backend, mobile=app+api)
-   → Set Structure Decision based on project type
-3. Fill the Constitution Check section based on the content of the constitution document.
-4. Evaluate Constitution Check section below
-   → If violations exist: Document in Complexity Tracking
-   → If no justification possible: ERROR "Simplify approach first"
-   → Update Progress Tracking: Initial Constitution Check
-5. Execute Phase 0 → research.md
-   → If NEEDS CLARIFICATION remain: ERROR "Resolve unknowns"
-6. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific template file (e.g., `CLAUDE.md` for Claude Code, `.github/copilot-instructions.md` for GitHub Copilot, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code or `AGENTS.md` for opencode).
-7. Re-evaluate Constitution Check section
-   → If new violations: Refactor design, return to Phase 1
-   → Update Progress Tracking: Post-Design Constitution Check
-8. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
-9. STOP - Ready for /tasks command
-```
-
-**IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
-- Phase 2: /tasks command creates tasks.md
-- Phase 3-4: Implementation execution (manual or via tools)
-
-## Summary
-[Extract from feature spec: primary requirement + technical approach from research]
-
-## Technical Context
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
-
-## Constitution Check
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-[Gates determined based on constitution file]
-
-## Project Structure
-
-### Documentation (this feature)
-```
-specs/[###-feature]/
-├── plan.md              # This file (/plan command output)
-├── research.md          # Phase 0 output (/plan command)
-├── data-model.md        # Phase 1 output (/plan command)
-├── quickstart.md        # Phase 1 output (/plan command)
-├── contracts/           # Phase 1 output (/plan command)
-└── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
+1. 入力パスから機能仕様書を読み込む
+   → 見つからない場合: ERROR "No feature spec at {path}"
+2. Technical Context を記入（NEEDS CLARIFICATION をスキャン）
+   → ファイルシステム構造またはコンテキストからプロジェクトタイプを検出（web=frontend+backend、mobile=app+api）
+   → プロジェクトタイプに基づいて構造決定を設定
+3. 憲章文書の内容に基づいてConstitution Checkセクションを記入
+4. 以下のConstitution Checkセクションを評価
+   → 違反が存在する場合: Complexity Trackingに文書化
+   → 正当化が不可能な場合: ERROR "Simplify approach first"
+   → Progress Trackingを更新: Initial Constitution Check
+5. Phase 0 を実行 → research.md
+   → NEEDS CLARIFICATIONが残る場合: ERROR "Resolve unknowns"
+6. Phase 1 を実行 → contracts、data-model.md、quickstart.md、エージェント固有テンプレートファイル（例: Claude Codeの場合`CLAUDE.md`、GitHub Copilotの場合`.github/copilot-instructions.md`、Gemini CLIの場合`GEMINI.md`、Qwen Codeの場合`QWEN.md`、opencodeの場合`AGENTS.md`）
+7. Constitution Checkセクションを再評価
+   → 新しい違反がある場合: 設計をリファクタリング、Phase 1に戻る
+   → Progress Trackingを更新: Post-Design Constitution Check
+8. Phase 2 を計画 → タスク生成アプローチを記述（tasks.mdは作成しない）
+9. 停止 - /tasksコマンドの準備完了
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+**重要**: /planコマンドはステップ7で停止します。Phase 2-4は他のコマンドによって実行されます:
+- Phase 2: /tasksコマンドがtasks.mdを作成
+- Phase 3-4: 実装実行（手動またはツール経由）
+
+## 概要
+主要要件: 文書種類ごとに柔軟なパス/番号生成ルールを持ち、照会と論理削除をサポートするDB対応の文書パス管理サービスを提供する。
+
+技術的アプローチ: 既存のRustバックエンド（`axum` + `sqlx` + SQLite）とSvelteフロントエンドを使用。
+
+## 技術的コンテキスト
+**言語/バージョン**: Rust 1.90+
+**主要依存関係**: axum 0.7（バックエンドWebフレームワーク）、sqlx 0.7（SQLiteデータベース）、tokio 1.35（非同期ランタイム）、Svelte 4.0（フロントエンドフレームワーク）、TypeScript 5.0
+**ストレージ**: SQLite（同時読み取りのためのWALモード使用）
+**テスト**: cargo test（契約テスト、統合テスト、単体テスト）
+**対象プラットフォーム**: Linux/Windowsサーバー（バックエンド）、モダンWebブラウザ（フロントエンド）
+**プロジェクトタイプ**: web（バックエンド + フロントエンド）
+**パフォーマンス目標**: 文書作成<10ms、照会応答<100ms（FR-014より）
+**制約**: 約10,000文書パスを効率的に処理、同時読み取りサポート、書き込み排他制御
+**規模/スコープ**: 中規模（約10,000文書パス、複数ユーザー同時アクセス）
+
+## 憲章チェック
+*ゲート: Phase 0リサーチ前に合格必須。Phase 1設計後に再チェック。*
+
+**I. 日本語ファースト**
+- [x] すべての文書（spec.md、plan.md、tasks.md等）は日本語で記述
+- [x] コミットメッセージは日本語
+- [x] AIとの対話・応答は日本語
+
+**II. テストファースト**
+- [x] 契約テスト、統合テスト、単体テストが実装前に計画されている
+- [x] TDDサイクル（Red-Green-Refactor）が設計に組み込まれている
+
+**III. データモデル駆動設計**
+- [x] data-model.mdがエンティティ、関係性、検証ルールを定義している
+- [x] データモデルがspec.mdの要件にトレース可能
+
+**IV. 契約による統合**
+- [x] contracts/ディレクトリにAPI/CLI契約定義が存在
+- [x] 契約テストが契約定義に基づいて計画されている
+
+**V. シンプルさ優先**
+- [x] YAGNIに従い、必要最小限の複雑さのみ導入
+- [x] 複雑さの導入には正当化をComplexity Trackingに記録
+
+## プロジェクト構造
+
+### ドキュメント（この機能）
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+specs/001-db/
+├── plan.md              # このファイル（/planコマンドの出力）
+├── research.md          # Phase 0 出力（/planコマンド）
+├── data-model.md        # Phase 1 出力（/planコマンド）
+├── quickstart.md        # Phase 1 出力（/planコマンド）
+├── contracts/           # Phase 1 出力（/planコマンド）
+└── tasks.md             # Phase 2 出力（/tasksコマンド - /planでは作成されない）
+```
 
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+### ソースコード（リポジトリルート）
+```
 backend/
 ├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+│   ├── models/          # データモデル定義
+│   ├── services/        # ビジネスロジック
+│   └── api/             # HTTPエンドポイント
 └── tests/
+    ├── contract/        # 契約テスト
+    ├── integration/     # 統合テスト
+    └── unit/            # 単体テスト
 
 frontend/
 ├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+│   ├── components/      # UIコンポーネント
+│   ├── pages/           # ページビュー
+│   └── services/        # APIクライアント
+└── tests/               # フロントエンドテスト
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**構造決定**: Webアプリケーション構造（Option 2）を選択。既存のbackend/およびfrontend/ディレクトリを使用。バックエンドはRust（axum + sqlx + SQLite）、フロントエンドはSvelte + TypeScriptで構築。
 
-## Phase 0: Outline & Research
-1. **Extract unknowns from Technical Context** above:
-   - For each NEEDS CLARIFICATION → research task
-   - For each dependency → best practices task
-   - For each integration → patterns task
+## Phase 0: 概要とリサーチ
+1. **上記Technical Contextから未知事項を抽出**:
+   - 各NEEDS CLARIFICATION → リサーチタスク
+   - 各依存関係 → ベストプラクティスタスク
+   - 各統合 → パターンタスク
 
-2. **Generate and dispatch research agents**:
+2. **リサーチエージェントを生成・派遣**:
    ```
-   For each unknown in Technical Context:
-     Task: "Research {unknown} for {feature context}"
-   For each technology choice:
-     Task: "Find best practices for {tech} in {domain}"
+   Technical Contextの各未知事項について:
+     タスク: "Research {unknown} for {feature context}"
+   各技術選択について:
+     タスク: "Find best practices for {tech} in {domain}"
    ```
 
-3. **Consolidate findings** in `research.md` using format:
-   - Decision: [what was chosen]
-   - Rationale: [why chosen]
-   - Alternatives considered: [what else evaluated]
+3. **調査結果を統合** `research.md`に以下の形式で記録:
+   - 決定: [選択されたもの]
+   - 根拠: [選択理由]
+   - 検討した代替案: [他に評価したもの]
 
-**Output**: research.md with all NEEDS CLARIFICATION resolved
+**出力**: /home/tagawa/try-spec-kit-via-vs_code/specs/001-db/research.md（すべてのNEEDS CLARIFICATIONが解決済み）
 
-## Phase 1: Design & Contracts
-*Prerequisites: research.md complete*
+## Phase 1: 設計と契約
+*前提条件: research.md完了*
 
-1. **Extract entities from feature spec** → `data-model.md`:
-   - Entity name, fields, relationships
-   - Validation rules from requirements
-   - State transitions if applicable
+1. **機能仕様書からエンティティを抽出** → `data-model.md`:
+   - エンティティ名、フィールド、関係性
+   - 要件からの検証ルール
+   - 該当する場合は状態遷移
 
-2. **Generate API contracts** from functional requirements:
-   - For each user action → endpoint
-   - Use standard REST/GraphQL patterns
-   - Output OpenAPI/GraphQL schema to `/contracts/`
+2. **機能要件からAPI契約を生成**:
+   - 各ユーザーアクション → エンドポイント
+   - 標準的なREST/GraphQLパターンを使用
+   - OpenAPI/GraphQLスキーマを`/contracts/`に出力
 
-3. **Generate contract tests** from contracts:
-   - One test file per endpoint
-   - Assert request/response schemas
-   - Tests must fail (no implementation yet)
+3. **契約から契約テストを生成**:
+   - エンドポイントごとに1つのテストファイル
+   - リクエスト/レスポンススキーマをアサート
+   - テストは失敗する必要がある（実装はまだ）
 
-4. **Extract test scenarios** from user stories:
-   - Each story → integration test scenario
-   - Quickstart test = story validation steps
+4. **ユーザーストーリーからテストシナリオを抽出**:
+   - 各ストーリー → 統合テストシナリオ
+   - Quickstartテスト = ストーリー検証ステップ
 
-5. **Update agent file incrementally** (O(1) operation):
-   - Run `.specify/scripts/bash/update-agent-context.sh copilot`
-     **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
-   - If exists: Add only NEW tech from current plan
-   - Preserve manual additions between markers
-   - Update recent changes (keep last 3)
-   - Keep under 150 lines for token efficiency
-   - Output to repository root
+5. **エージェントファイルを段階的に更新**（O(1)操作）:
+   - `.specify/scripts/bash/update-agent-context.sh copilot`を実行
+     **重要**: 上記で指定されたとおりに実行してください。引数を追加または削除しないでください。
+   - 存在する場合: 現在の計画から新しい技術のみを追加
+   - マーカー間の手動追加を保持
+   - 最近の変更を更新（最後の3つを保持）
+   - トークン効率のため150行未満に保つ
+   - リポジトリルートに出力
 
-**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
+**出力**:
+- /home/tagawa/try-spec-kit-via-vs_code/specs/001-db/data-model.md
+- /home/tagawa/try-spec-kit-via-vs_code/specs/001-db/contracts/document_service.proto
+- /home/tagawa/try-spec-kit-via-vs_code/specs/001-db/quickstart.md
+- /home/tagawa/try-spec-kit-via-vs_code/.github/copilot-instructions.md（エージェントファイル更新済み）
 
-## Phase 2: Task Planning Approach
-*This section describes what the /tasks command will do - DO NOT execute during /plan*
+## Phase 2: タスク計画アプローチ
+*このセクションは/tasksコマンドが実行する内容を記述 - /plan実行中は実行しない*
 
-**Task Generation Strategy**:
-- Load `.specify/templates/tasks-template.md` as base
-- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract → contract test task [P]
-- Each entity → model creation task [P] 
-- Each user story → integration test task
-- Implementation tasks to make tests pass
+**タスク生成戦略**:
+- `.specify/templates/tasks-template.md`をベースとして読み込む
+- Phase 1設計文書（contracts、data model、quickstart）からタスクを生成
+- 各契約 → 契約テストタスク [P]
+- 各エンティティ → モデル作成タスク [P]
+- 各ユーザーストーリー → 統合テストタスク
+- テストを合格させるための実装タスク
 
-**Ordering Strategy**:
-- TDD order: Tests before implementation 
-- Dependency order: Models before services before UI
-- Mark [P] for parallel execution (independent files)
+**順序付け戦略**:
+- TDD順序: 実装前にテスト
+- 依存関係順序: モデル → サービス → UI
+- [P]で並列実行をマーク（独立したファイル）
 
-**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
+**推定出力**: tasks.mdに25-30の番号付き、順序付きタスク
 
-**IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
+**重要**: このフェーズは/tasksコマンドによって実行され、/planでは実行されません
 
-## Phase 3+: Future Implementation
-*These phases are beyond the scope of the /plan command*
+## Phase 3+: 今後の実装
+*これらのフェーズは/planコマンドの範囲外*
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)  
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
-**Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
+**Phase 3**: タスク実行（/tasksコマンドがtasks.mdを作成）
+**Phase 4**: 実装（憲章原則に従ってtasks.mdを実行）
+**Phase 5**: 検証（テスト実行、quickstart.md実行、パフォーマンス検証）
 
-## Complexity Tracking
-*Fill ONLY if Constitution Check has violations that must be justified*
+## 複雑さ追跡
+*Constitution Checkに正当化が必要な違反がある場合のみ記入*
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| 違反 | 必要な理由 | よりシンプルな代替案を却下した理由 |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| （該当なし） | - | - |
 
 
-## Progress Tracking
-*This checklist is updated during execution flow*
+## 進捗追跡
+*このチェックリストは実行フロー中に更新される*
 
-**Phase Status**:
-- [ ] Phase 0: Research complete (/plan command)
-- [ ] Phase 1: Design complete (/plan command)
-- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
-- [ ] Phase 3: Tasks generated (/tasks command)
-- [ ] Phase 4: Implementation complete
-- [ ] Phase 5: Validation passed
+**フェーズステータス**:
+ - [x] Phase 0: リサーチ完了（/planコマンド）
+ - [x] Phase 1: 設計完了（/planコマンド）
+ - [ ] Phase 2: タスク計画完了（/planコマンド - アプローチのみ記述）
+ - [ ] Phase 3: タスク生成完了（/tasksコマンド）
+ - [ ] Phase 4: 実装完了
+ - [ ] Phase 5: 検証合格
 
-**Gate Status**:
-- [ ] Initial Constitution Check: PASS
-- [ ] Post-Design Constitution Check: PASS
-- [ ] All NEEDS CLARIFICATION resolved
-- [ ] Complexity deviations documented
+**ゲートステータス**:
+ - [x] 初回憲章チェック: 合格
+ - [x] 設計後憲章チェック: 合格
+ - [x] すべてのNEEDS CLARIFICATION解決済み
+ - [x] 複雑さの逸脱は文書化済み（該当なし）
 
 ---
-*Based on Constitution v1.1.2 - See `/memory/constitution.md`*
-
-````
+*憲章 v1.0.0 に基づく - `.specify/memory/constitution.md`を参照*

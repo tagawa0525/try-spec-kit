@@ -1,7 +1,145 @@
+# Tasks for feature: Document Path Management (001-db)
+
+Feature directory: /home/tagawa/try-spec-kit-via-vs_code/specs/001-db
+Branch: 001-db
+Date: 2025-10-02
+
+Instruction: Tasks are dependency-ordered. [P] marks tasks that can run in parallel.
+
+T001 - Setup: Project toolchain & CI config
+ - Purpose: Ensure local dev and CI can run tests and linting
+ - Files/paths:
+   - `/home/tagawa/try-spec-kit-via-vs_code/backend` (Rust toolchain)
+   - `/home/tagawa/try-spec-kit-via-vs_code/frontend` (Node/npm)
+ - Steps:
+   1. Verify `rustup` + required toolchain installed (Rust >=1.90)
+   2. Ensure `cargo fmt` and `cargo clippy` available and add CI job to run them
+ - Output: CI config updated to run `cargo fmt -- --check`, `cargo clippy`, `cargo test`
+ - Depends on: none
+
+T002 - Setup: Database migrations and local DB initialization [P]
+ - Purpose: Ensure migrations exist and local DB can be created/restored
+ - Files/paths:
+   - `/home/tagawa/try-spec-kit-via-vs_code/backend/migrations`
+ - Steps:
+   1. Run migrations against local sqlite DB file at `backend/data/documents.db`.
+   2. Add a small script `backend/examples/seed_data.rs` if not present to seed departments/document types for tests.
+ - Output: `documents.db` seeded, path exists
+ - Depends on: T001
+
+T003 - Contract tests (from Protocol Buffer / gRPC) [P]
+ - Purpose: Generate failing contract tests (one per RPC) to drive TDD for gRPC services
+ - Files/paths:
+   - `/home/tagawa/try-spec-kit-via-vs_code/specs/001-db/contracts/document_service.proto`
+   - `/home/tagawa/try-spec-kit-via-vs_code/tests/contract/` (create files here)
+ - Steps:
+   1. For each RPC in `document_service.proto`, create a contract test that asserts request/response schema and streaming behavior if any.
+   2. Tests must fail (server not implemented yet) — use Rust `tonic` test clients or a `grpcurl`-based harness to exercise RPCs.
+ - Output: Failing contract tests added under `/home/tagawa/try-spec-kit-via-vs_code/tests/contract/` (e.g., `test_documents_list.rs`, `test_documents_create.rs`)
+ - Depends on: T001, T002
+
+T004 - Model tasks: Create data models (entities) [P]
+ - Purpose: Implement persistent models and storage functions for each entity in `data-model.md`
+ - Entities / Files to implement:
+   - Department: `backend/src/models/department.rs`, storage: `backend/src/storage/department.rs`
+   - Section: `backend/src/models/section.rs`, storage: `backend/src/storage/section.rs`
+   - User: `backend/src/models/user.rs`, storage: `backend/src/storage/user.rs`
+   - BusinessTask: `backend/src/models/business_task.rs`, storage: `backend/src/storage/business_task.rs`
+   - DocumentType: `backend/src/models/document_type.rs`, storage: `backend/src/storage/document_type.rs`
+   - PathGenerationRule: embed in `document_type` model as JSON
+   - DocumentPath: `backend/src/models/document_path.rs`, storage: `backend/src/storage/document_path.rs`
+ - Steps:
+   1. Create models (structs) matching `data-model.md` fields.
+   2. Implement storage functions: create/get/list/update/delete where applicable.
+   3. Add SQL migration entries if missing (in `backend/migrations`).
+ - Output: Models + storage modules compiled but tests may still fail
+ - Depends on: T002
+
+T005 - Service tasks: Implement generation service & counters
+ - Purpose: Implement `generation_service` to create document numbers and manage counters atomically
+ - Files/paths:
+   - `backend/src/services/generation_service.rs`
+   - `backend/src/storage/counter.rs`
+ - Steps:
+   1. Implement `get_next_counter(scope_key)` transactionally in `storage/counter.rs`.
+   2. Implement `generation_service::generate_number(rule, dept, section, now)` that calls counter and formats number.
+ - Output: Service functions compile and have unit tests demonstrating increment semantics
+ - Depends on: T004
+
+T006 - Endpoint implementation: gRPC services (TDD - implement to satisfy proto contract tests)
+ - Purpose: Implement gRPC services defined in `document_service.proto` and ensure contract tests pass
+ - Files/paths:
+   - `backend/src/grpc/` (service implementations)
+   - `backend/src/grpc/document_service.rs` (DocumentService)
+   - `backend/src/grpc/metadata_service.rs` (MetadataService)
+ - Steps:
+   1. Implement `DocumentService::ListDocuments`, `CreateDocumentAuto`, `CreateDocumentManual`, `GetDocumentById`, `GetDocumentByNumber` using a gRPC server (e.g., `tonic`).
+   2. Implement `MetadataService::ListDepartments` and `ListDocumentTypes` as streaming RPCs.
+   3. Wire gRPC server into application start (or provide gRPC+HTTP gateway if REST compatibility desired).
+ - Output: gRPC services implemented and proto contract tests (T003) pass
+ - Depends on: T003 (tests), T004 (models), T005 (generation service)
+
+T007 - API: Departments and Document-types endpoints
+ - Purpose: Provide metadata endpoints used by frontend for labels and choices
+ - Files/paths:
+   - `backend/src/api/metadata.rs`
+ - Steps:
+   1. Implement GET `/api/departments` returning list of departments with sections
+   2. Implement GET `/api/document-types` returning active types
+ - Output: Endpoints implemented and tested via contract tests
+ - Depends on: T004
+
+T008 - Integration tests: user scenarios from quickstart.md [P]
+ - Purpose: Implement integration tests covering primary user stories
+ - Files/paths:
+   - `/home/tagawa/try-spec-kit-via-vs_code/tests/integration/` (create test files here)
+ - Steps:
+   1. Translate Quickstart scenarios into integration tests (e.g., create document, query, update, delete)
+   2. Ensure tests are executable with `cargo test --test <name>`
+ - Output: Integration tests added and initially fail until endpoints are implemented
+ - Depends on: T006, T007
+
+T009 - Frontend: Integrate metadata and API calls
+ - Purpose: Hook frontend components to metadata endpoints and documents API
+ - Files/paths:
+   - `frontend/src/lib/api/metadata.ts`
+   - `frontend/src/lib/stores/metadata.ts`
+   - `frontend/src/lib/components/DocumentList.svelte`
+   - `frontend/src/lib/components/DocumentDetails.svelte`
+ - Steps:
+   1. Implement API client for `/api/departments` and `/api/document-types`
+   2. Implement Svelte store `loadMetadata()` and use in components
+   3. Wire create-document flows to POST `/api/documents`
+ - Output: Frontend uses DB-driven labels and creates documents via API
+ - Depends on: T007, T006
+
+T010 - Polish & Docs [P]
+ - Purpose: Add README/usage notes, code comments, and run `cargo fmt`/`cargo clippy`
+ - Files/paths:
+   - `README.md`, `specs/001-db/quickstart.md`
+ - Steps:
+   1. Update README with quickstart steps
+   2. Run linters and fix warnings
+ - Output: Clean repo, documented quickstart
+ - Depends on: All previous tasks
+
+Parallel execution guidance
+- Tasks that are safe to run in parallel: T002, T003, T004 (models), T008 (integration test scaffolding), T010 (docs) — mark as [P]
+- Tasks that must be sequential: T006 (endpoints) depends on T004/T005/T003; T009 (frontend) depends on T007/T006
+
+Example agent commands (runnable snippets)
+- Run contract tests (Linux):
+  - `cargo test --test test_documents_contracts`
+- Run integration tests:
+  - `cargo test --test test_integration_quickstart`
+
+Notes & assumptions
+- Assume SQLite is used per research.md and migrations exist
+- Assume initial seed data will include departments G,K and types A, りん議, 教育
 # Tasks: Document Path Management Database
 
 **Input**: Design documents from `/home/tagawa/try-spec-kit-via-vs_code/specs/001-db/`
-**Prerequisites**: plan.md, research.md, data-model.md, contracts/, quickstart.md
+**Prerequisites**: plan.md, research.md, data-model.md, contracts/document_service.proto, quickstart.md
 
 ## Execution Flow (main)
 ```

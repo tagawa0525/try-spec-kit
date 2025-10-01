@@ -1,88 +1,79 @@
-````markdown
-# Feature Specification: Document Path Management Database
+# 機能仕様書: 文書パス管理データベース
 
-**Feature Branch**: `001-db`  
-**Create- **FR-005**: System MUST support - **FR-012**: System MUST allow deleting document paths by identifier (logical deletion - mark as deleted but retain data for audit purposes)
-- **FR-013**: System MUST persist document path data across application restarts (indefinite retention unless explicitly deleted)
-- **FR-014**: System MUST handle up to approximately 10,000 document paths efficiently
-- **FR-015**: System MUST provide search functionality for locating paths
-- **FR-016**: System MUST support multiple concurrent users for read operations
-- **FR-017**: System MUST enforce exclusive access for write operations (updates and deletions)
-- **FR-018**: System MUST validate absolute file paths before storageent and section codes such as GI (General Affa- **DocumentPath**: Represents a stored file path with its unique identifier and associated metadata
-  - Unique system identifier (system-generated)
-  - Document number (generated according to document type's rule, e.g., "AGI-2509001", "りん議I-25009")
-  - Document type reference
-  - Department code (extracted from document number or user context)
-  - Section code (extracted from document number or user context)
-  - Business task reference (which business task this document supports)
-  - User reference (who created/owns the document)
-  - File path (absolute path: Unix/Linux format, Windows local drive, or Windows UNC network path)
-  - Creation timestamp
-  - Last modified timestamp
-  - Generated vs. manually entered flag
-  - Deleted flag (logical deletion for audit purposes, retained indefinitely)structure I), KT (Analysis K, Technology T), and other organizational units
-- **FR-006**: System MUST automatically generate file paths based on document type rules
-- **FR-007**: System MUST maintain auto-increment counters per document type, department, section, and time period
-- **FR-008**: System MUST allow manual addition of document paths when automatic generation is not applicable 2025-09-30  
-**Status**: Draft  
-**Input**: User description: "文書のパスを管理するDB"
+**機能ブランチ**: `001-db`
+**作成日**: 2025-09-30
+**ステータス**: ドラフト
+**入力**: ユーザー記述: "文書のパスを管理するDB"
 
-## Execution Flow (main)
+## 実行フロー (main)
 ```
-1. Parse user description from Input
-   → If empty: ERROR "No feature description provided"
-2. Extract key concepts from description
-   → Identify: actors, actions, data, constraints
-3. For each unclear aspect:
-   → Mark with [NEEDS CLARIFICATION: specific question]
-4. Fill User Scenarios & Testing section
-   → If no clear user flow: ERROR "Cannot determine user scenarios"
-5. Generate Functional Requirements
-   → Each requirement must be testable
-   → Mark ambiguous requirements
-6. Identify Key Entities (if data involved)
-7. Run Review Checklist
-   → If any [NEEDS CLARIFICATION]: WARN "Spec has uncertainties"
-   → If implementation details found: ERROR "Remove tech details"
-8. Return: SUCCESS (spec ready for planning)
+1. 入力からユーザー記述を解析
+   → 空の場合: ERROR "機能記述が提供されていません"
+2. 記述からキーコンセプトを抽出
+   → 特定: アクター、アクション、データ、制約
+3. 不明確な側面ごとに:
+   → [NEEDS CLARIFICATION: 具体的な質問]でマーク
+4. ユーザーシナリオ＆テストセクションを記入
+   → 明確なユーザーフローがない場合: ERROR "ユーザーシナリオを決定できません"
+5. 機能要件を生成
+   → 各要件はテスト可能でなければならない
+   → 曖昧な要件をマーク
+6. 主要エンティティを特定（データが関与する場合）
+7. レビューチェックリストを実行
+   → [NEEDS CLARIFICATION]がある場合: WARN "仕様に不確実性があります"
+   → 実装詳細が見つかった場合: ERROR "技術詳細を削除してください"
+8. 戻り値: SUCCESS (仕様は計画の準備完了)
 ```
 
 ---
 
-## ⚡ Quick Guidelines
-- ✅ Focus on WHAT users need and WHY
-- ❌ Avoid HOW to implement (no tech stack, APIs, code structure)
-- 👥 Written for business stakeholders, not developers
+## ⚡ クイックガイドライン
+- ✅ ユーザーが必要とすること（WHAT）とその理由（WHY）に焦点を当てる
+- ❌ 実装方法（HOW）を避ける（技術スタック、API、コード構造は記載しない）
+- 👥 ビジネス関係者向けに記述、開発者向けではない
 
-### Section Requirements
-- **Mandatory sections**: Must be completed for every feature
-- **Optional sections**: Include only when relevant to the feature
-- When a section doesn't apply, remove it entirely (don't leave as "N/A")
+### セクション要件
+- **必須セクション**: すべての機能で完了必須
+- **オプションセクション**: 機能に関連する場合のみ含める
+- セクションが適用されない場合は、完全に削除する（"N/A"のまま残さない）
 
-### For AI Generation
-When creating this spec from a user prompt:
-1. **Mark all ambiguities**: Use [NEEDS CLARIFICATION: specific question] for any assumption you'd need to make
-2. **Don't guess**: If the prompt doesn't specify something (e.g., "login system" without auth method), mark it
-3. **Think like a tester**: Every vague requirement should fail the "testable and unambiguous" checklist item
-4. **Common underspecified areas**:
-   - User types and permissions
-   - Data retention/deletion policies  
-   - Performance targets and scale
-   - Error handling behaviors
-   - Integration requirements
-   - Security/compliance needs
+### AI生成用
+ユーザープロンプトからこの仕様を作成する際:
+1. **すべての曖昧さをマーク**: 仮定が必要な場合は[NEEDS CLARIFICATION: 具体的な質問]を使用
+2. **推測しない**: プロンプトで指定されていない場合（例: 認証方法なしの「ログインシステム」）はマーク
+3. **テスターのように考える**: 曖昧な要件は「テスト可能で明確」チェックリスト項目で失敗すべき
+4. **一般的な不足仕様領域**:
+   - ユーザータイプと権限
+   - データ保持/削除ポリシー
+   - パフォーマンス目標とスケール
+   - エラー処理動作
+   - 統合要件
+   - セキュリティ/コンプライアンス要件
 
 ---
 
-## Clarifications
+## 明確化セッション
 
-### Session 2025-09-30
+### セッション 2025-09-30
 
 - Q: このシステムをどのように利用できるようにしますか？（CLI、ライブラリAPI、両方） → A: 両方（プログラムから利用可能なAPIとユーザーインターフェースの両方を提供）
 
-### Session 2025-10-01
+### セッション 2025-10-01
 
 - Q: 非存在のドキュメントIDまたは文書番号を検索した場合、システムはどのように応答すべきですか？ → A: 空の結果を返す（`Ok(None)`または空リストを返し、エラーではなく「見つからない」状態として扱う）
+
+### セッション 2025-10-02
+
+- Q: システムがユーザーインターフェース（FR-021）を提供する際、ユーザーが文書を作成しようとしたが、現在の期間の自動インクリメントカウンターが上限に達している場合、どうすべきですか？ → A: エラーメッセージのみ表示して作成をブロック
+- Q: 文書の論理削除（FR-012）を行った後、削除された文書は検索結果に表示されるべきですか？ → A: デフォルトで非表示（通常の検索では表示しない）
+- Q: 文書番号生成ルール（PathGenerationRule）の設定を変更できるのは誰ですか？ → A: 各部門の管理者（自部門のルールのみ）
+- Q: システムの障害発生時、データベースのバックアップやリカバリー機能が必要ですか？ → A: 外部ツールに委譲（システムは提供しない）
+- Q: 業務タスク（BusinessTask）は誰が作成・管理しますか？ → A: 各部門の管理者（自部門のタスクのみ、管理の企画営業部も可能）
+- Q: 文書新規作成時に、文書番号とファイルパス以外に、ユーザーが入力すべき情報はありますか？ → A: タイトル（必須）、備考（オプション）、版番号（バージョン管理用）を入力。ファイルパスは年月と文書種類からルールによって自動生成される
+- Q: 版番号（Version number）の管理方法について、システムはどのように扱うべきですか？ → A: 版番号は単なるメタデータ（履歴管理なし）
+- Q: 文書のタイトルや備考フィールドで検索できる必要がありますか？ → A: タイトルのみ部分一致検索
+- Q: 文書作成時、業務タスク（BusinessTask）の選択は必須ですか？ → A: オプション（業務タスクなしでも作成可能）
+- Q: 文書作成時に文書種類（DocumentType）をユーザーが選択する際、どのように表示・選択しますか？ → A: 自分の部署・課で利用可能な文書種類のみリスト表示（チェックボックスのデフォルトが自部署になっているが、切り替え可能。権限管理は不要）
 - Q: ファイルパスがディスク上に実際に存在するかどうかをシステムで追跡する必要がありますか？ → A: オプショナル機能として提供（将来的な拡張として検討、初期実装では不要）
 - Q: このシステムで管理する文書パスの想定数はどのくらいですか？ → A: 中規模（約10,000件）- チームや部門での利用レベル
 - Q: このシステムは複数のユーザーが同時にアクセスすることを想定していますか？ → A: 複数ユーザー（読み取りのみ共有）- 複数ユーザーが同時に閲覧可能だが、更新は排他的
@@ -99,187 +90,203 @@ When creating this spec from a user prompt:
 
 ---
 
-## User Scenarios & Testing *(mandatory)*
+## ユーザーシナリオとテスト *(必須)*
 
-### Primary User Story
+### 主要ユーザーストーリー
 
-As a department user, I want to manage document file paths through a flexible rule-based automatic path generation system where each document type can have its own unique numbering format and root directory, so that I can efficiently organize documents according to different document type requirements without manually maintaining path information.
+部門ユーザーとして、各文書種類が独自の番号フォーマットとrootディレクトリを持つ柔軟なルールベース自動パス生成システムを通じて文書ファイルパスを管理したい。これにより、パス情報を手動で維持することなく、異なる文書種類要件に応じて文書を効率的に整理できる。
 
-### Acceptance Scenarios
+### 受入シナリオ
 
-1. **Given** a document type "A" is defined with rule format `[Type][Dept][Section][YYMM][NNN]` and root directory `/docs/contracts/`, **When** a user in GI section creates a new document of type A in September 2025, **Then** the system generates document number "AGI-2509001" and stores path `/docs/contracts/AGI-2509001.pdf`
-2. **Given** a document type "りん議" is defined with rule format `[Type][Section]-[YY][NNN]` and root directory `/docs/ringi/`, **When** a user in section I creates a ringi document in 2025, **Then** the system generates document number "りん議I-25009" and stores path `/docs/ringi/りん議I-25009.pdf`
-3. **Given** I am a user in department "K" section "T", **When** I create a document, **Then** the system uses document types configured for my department and section
-4. **Given** a document is created, **When** I associate it with a business task, **Then** the system stores the business task reference
-5. **Given** the database is empty, **When** I add a new document path, **Then** the path is stored successfully and assigned a unique identifier
-6. **Given** a document path exists in the database, **When** I search by document number (e.g., "AGI-2509001" or "りん議I-25009"), **Then** the system returns the correct document path
-7. **Given** multiple document paths exist, **When** I query all paths, **Then** the system returns a complete list of stored paths
-8. **Given** a document path exists, **When** I update its path value, **Then** the new path is stored and the document number remains unchanged
-9. **Given** a document path exists, **When** I delete it by document number, **Then** the path is removed from the database
-10. **Given** a document type with a path generation rule, **When** I query documents by type, **Then** the system returns all paths for that document type
-11. **Given** I am a user in a department, **When** I query documents by business task, **Then** the system returns all documents associated with that task
-12. **Given** multiple documents exist with type "りん議" in year 25, **When** the auto-increment reaches りん議I-25999, **Then** the system handles counter overflow appropriately
+1. **前提条件**: 文書種類"A"がルールフォーマット`[Type][Dept][Section]-[YYMM][NNN]`とrootディレクトリ`/docs/contracts/`で定義されている、**条件**: GI課のユーザーが2025年9月にタイトル「契約審査文書」でタイプAの新規文書を作成、**期待結果**: システムは文書番号"AGI-2509001"を生成し、パス`/docs/contracts/AGI-2509001.pdf`を保存し、タイトルとオプションの備考を保存する
+2. **前提条件**: 文書種類"りん議"がルールフォーマット`[Type][Section]-[YY][NNN]`とrootディレクトリ`/docs/ringi/`で定義されている、**条件**: I課のユーザーが2025年にりん議文書を作成、**期待結果**: システムは文書番号"りん議I-25009"を生成し、パス`/docs/ringi/りん議I-25009.pdf`を保存する
+3. **前提条件**: 私が部門"K"課"T"のユーザーである、**条件**: 文書を作成する、**期待結果**: システムは自分の部門と課用に設定された文書種類を使用する
+4. **前提条件**: 文書が作成されている、**条件**: 業務タスクに関連付ける、**期待結果**: システムは業務タスク参照を保存する
+5. **前提条件**: データベースが空である、**条件**: 新しい文書パスを追加する、**期待結果**: パスが正常に保存され、一意の識別子が割り当てられる
+6. **前提条件**: データベースに文書パスが存在する、**条件**: 文書番号で検索する（例: "AGI-2509001"または"りん議I-25009"）、**期待結果**: システムは正しい文書パスを返す
+7. **前提条件**: 複数の文書パスが存在する、**条件**: すべてのパスを照会する、**期待結果**: システムは保存されたパスの完全なリストを返す
+8. **前提条件**: 文書パスが存在する、**条件**: そのパス値を更新する、**期待結果**: 新しいパスが保存され、文書番号は変更されない
+9. **前提条件**: 文書パスが存在する、**条件**: 文書番号で削除する、**期待結果**: パスがデータベースから削除される
+10. **前提条件**: パス生成ルールを持つ文書種類がある、**条件**: 種類別に文書を照会する、**期待結果**: システムはその文書種類のすべてのパスを返す
+11. **前提条件**: 私が部門のユーザーである、**条件**: 業務タスク別に文書を照会する、**期待結果**: システムはそのタスクに関連付けられたすべての文書を返す
+12. **前提条件**: タイプ"りん議"の複数の文書が25年に存在する、**条件**: 自動インクリメントがりん議I-25999に達する、**期待結果**: システムはカウンターオーバーフローを適切に処理する
 
-### Edge Cases
+### エッジケース
 
-- What happens when a duplicate path is added? System MUST prevent duplicates through rule-based path generation
-- How does system handle invalid file paths? System MUST validate path format (absolute paths for Unix/Linux, Windows local drives, and Windows UNC paths) and reject invalid formats
-- What happens when querying a non-existent identifier? System MUST return empty result (`Ok(None)` for single document queries, empty list for search queries) rather than error
-- What happens when multiple users attempt to update the same path simultaneously? System MUST reject concurrent write attempts and notify the user
-- What happens when the path points to a file that no longer exists on disk? System does NOT track file existence in initial implementation (path metadata only); file existence validation MAY be added as optional future enhancement
-- What happens when the auto-increment counter reaches its maximum (999 or configured digit limit)? System MUST return an error indicating counter exhaustion and notify administrators. For month-based counters, the counter resets in the next month; for year-based counters, the counter resets in the next year.
-- How does system handle changes to path generation rules for existing documents? System MUST maintain backwards compatibility with previously generated paths (existing documents retain their original numbers)
-- How does system handle cross-platform path differences (Unix/Windows)? System MUST store paths as-is and handle platform-specific formats correctly
-- What happens when a user attempts to create a document with a type not associated with their department and section? System MUST reject the operation and notify the user
-- How does system handle department restructuring (users moving between departments)? System MUST maintain historical document ownership while allowing department updates
-- How does system handle multi-byte characters in document type codes (りん議, 教育) in file paths? System MUST properly encode and handle UTF-8 or other appropriate character encoding
-
-## Requirements *(mandatory)*
-
-### Functional Requirements
-
-- **FR-001**: System MUST store document file paths with unique identifiers
-- **FR-002**: System MUST define document types with customizable path generation rules
-- **FR-003**: System MUST support flexible document number format definition per document type, allowing configuration of:
-  - Which components to include (document type name, department code, section code, year, month, auto-increment)
-  - Component order and positioning
-  - Separators (e.g., "-", no separator, etc.)
-  - Digit counts for each component
-  - Year format (2 or 4 digits)
-  - Whether to include month component
-  - PathGenerationRule entities to define and manage these configurations with counter scope settings
-- **FR-004**: System MUST support document type codes including: A (contractually required documents), C (internal memos), D (received documents), Q (quality-related documents), りん議 (ringi/approval documents; 稟議書), 教育 (training records), and other customizable types
-- **FR-005**: System MUST support department and section codes such as GI (General Affairs G, Infrastructure I), KT (Analysis K, Technology T), and other organizational units
-- **FR-006**: System MUST automatically generate document numbers and file paths based on document type-specific rules (number generation according to rule format + path construction by combining root directory with generated number)
-- **FR-007**: System MUST maintain auto-increment counters with scope defined per document type rule (e.g., per type+section+year, or per type+year, etc.)
-- **FR-008**: System MUST allow manual addition of document paths with manually-specified document numbers when automatic generation is not applicable (generation rules are NOT applied to manual entries)
-- **FR-009**: System MUST allow querying all stored document paths
-- **FR-010**: System MUST allow querying paths filtered by document type
-- **FR-011**: System MUST allow updating existing document paths
-- **FR-012**: System MUST allow deleting document paths by identifier using logical deletion (mark as deleted with boolean flag but retain data indefinitely for audit purposes)
-- **FR-013**: System MUST persist document path data across application restarts (indefinite retention unless explicitly deleted)
-- **FR-014**: System MUST handle up to approximately 10,000 document paths efficiently (query response time <100ms, document creation <10ms)
-- **FR-015**: System MUST provide search functionality for locating paths
-- **FR-016**: System MUST support multiple concurrent users for read operations
-- **FR-017**: System MUST enforce exclusive access for write operations (updates and deletions)
-- **FR-018**: System MUST validate absolute file paths before storage
-- **FR-019**: System MUST support both local absolute paths (e.g., /home/user/docs or C:\Users\docs) and Windows UNC network paths (e.g., \\server\share\docs)
-- **FR-020**: System MUST support metadata storage including creation timestamp and last modified timestamp
-- **FR-021**: System MUST provide both a programmatic API and user interface for accessing path data
-- **FR-022**: System MUST allow programmatic access for integration with other applications
-- **FR-023**: System MUST support configuration and modification of path generation rules per document type, with changes applying only to new documents (existing documents retain their original numbers and paths for backwards compatibility)
-- **FR-024**: System MUST associate users with departments and sections
-- **FR-025**: System MUST associate document types with specific department and section combinations, and MUST validate that users can only create documents using document types valid for their department and section (or allow type to be available across multiple dept/section combinations)
-- **FR-026**: System MUST associate documents with business tasks
-- **FR-027**: System MUST allow querying documents by department
-- **FR-028**: System MUST allow querying documents by section
-- **FR-029**: System MUST allow querying documents by business task
-- **FR-030**: System MUST enforce that users can only create documents using document types valid for their department and section
-- **FR-031**: System MUST support both single-byte (A, C, D, Q) and multi-byte (りん議, 教育) document type identifiers
-- **FR-032**: System MUST allow configuration of root directory path per document type, supporting both local absolute paths and Windows UNC paths
-- **FR-033**: System MUST enforce department and section authorization for document creation (users can only create documents with types valid for their dept/section)
-- **FR-034**: System SHOULD support future integration with external authentication providers (SSO, LDAP, Active Directory) for user identity and department/section assignment
-- **FR-035**: System MAY initially operate without built-in authentication, assuming users are pre-authenticated by the hosting environment
-
-### Key Entities *(include if feature involves data)*
-
-- **Department**: Represents a department within the organization
-  - Unique department code (1 character, e.g., "G" for General Affairs, "K" for Analysis)
-  - Department name
-  - List of sections within the department
-
-- **Section**: Represents a section within a department
-  - Unique section code (1 character, e.g., "I" for Infrastructure, "T" for Technology)
-  - Section name
-  - Department reference (parent department)
-  - List of users belonging to the section
-
-- **User**: Represents a system user who creates and manages documents
-  - Unique user identifier
-  - User name
-  - Department reference
-  - Section reference (each user belongs to one department and one section)
-  - Access permissions
-
-- **BusinessTask**: Represents a business activity or task that documents support
-  - Unique task identifier
-  - Task name/description
-  - Department reference (optional)
-  - Section reference (optional)
-  - Active/inactive status
-
-- **DocumentType**: Defines a category of documents with associated path generation rules
-  - Document type code (1-3 characters, e.g., "A", "C", "D", "Q", "りん議", "教育")
-  - Document type description (e.g., "契約上必要な提出文書", "社内メモ", "入手した文書")
-  - Department code reference (which department this type belongs to, optional if type spans multiple departments)
-  - Section code reference (which section this type belongs to, optional if type spans multiple sections)
-  - Root directory path (absolute path or Windows UNC path for this document type)
-  - Path generation rule reference (defines flexible numbering format)
-  - Active/inactive status
-
-- **DocumentPath**: Represents a stored file path with its unique identifier and associated metadata
-  - Unique system identifier (system-generated)
-  - Document number (generated according to document type's rule, e.g., "AGI-2509001", "りん議I-25009")
-  - Document type reference
-  - Department code (extracted from document number or user context)
-  - Section code (extracted from document number or user context)
-  - Business task reference (which business task this document supports)
-  - User reference (who created/owns the document)
-  - File path (absolute path: Unix/Linux format, Windows local drive, or Windows UNC network path)
-  - Creation timestamp
-  - Last modified timestamp
-  - Generated vs. manually entered flag
-
-- **PathGenerationRule**: Defines how document numbers are automatically constructed for a document type (fully flexible per type)
-  - Rule identifier
-  - Associated document type
-  - Component configuration (ordered list defining what appears in the number):
-    - Component type (document_type_name, department_code, section_code, year, month, auto_increment)
-    - Component position in sequence
-    - Digit count (for numeric components like year, month, increment)
-    - Year format (2-digit or 4-digit)
-  - Separator configuration (defines separators between components, e.g., "-", no separator, etc.)
-  - Auto-increment counter scope (what resets the counter: type only, type+year, type+section+year, etc.)
-  - Auto-increment digit count
-  - Example output (e.g., "AGI-2509001" for format [Type][Dept][Section][YYMM][NNN], "りん議I-25009" for [Type][Section]-[YY][NNN])
+- 重複パスが追加された場合どうなりますか？ システムはルールベースのパス生成により重複を防止しなければならない
+- システムは無効なファイルパスをどのように処理しますか？ システムはパスフォーマット（Unix/Linux、Windowsローカルドライブ、Windows UNCパスの絶対パス）を検証し、無効なフォーマットを拒否しなければならない
+- 存在しない識別子を照会した場合どうなりますか？ システムはエラーではなく空の結果（単一文書照会では`Ok(None)`、検索照会では空リスト）を返さなければならない
+- 複数のユーザーが同時に同じパスを更新しようとした場合どうなりますか？ システムは同時書き込み試行を拒否し、ユーザーに通知しなければならない
+- パスがディスク上に存在しないファイルを指す場合どうなりますか？ システムは初期実装でファイル存在を追跡しない（パスメタデータのみ）；ファイル存在検証はオプショナルな将来の拡張として追加される可能性がある
+- 自動インクリメントカウンターが最大値（999または設定桁数制限）に達した場合どうなりますか？ システムはカウンター枯渇を示すエラーを返し、文書作成をブロックし、ユーザーにエラーメッセージを表示しなければならない。月ベースのカウンターの場合、カウンターは次の月にリセットされる；年ベースのカウンターの場合、カウンターは次の年にリセットされる。ユーザーは期間のロールオーバーを待つか、手動入力（FR-008）を回避策として使用しなければならない。
+- システムは既存文書のパス生成ルール変更をどのように処理しますか？ システムは以前に生成されたパスとの後方互換性を維持しなければならない（既存文書は元の番号を保持する）
+- システムはクロスプラットフォームパスの違い（Unix/Windows）をどのように処理しますか？ システムはパスをそのまま保存し、プラットフォーム固有のフォーマットを正しく処理しなければならない
+- ユーザーが自分の部門と課に通常関連付けられていない種類の文書を作成しようとした場合どうなりますか？ システムは作成を許可する（アクセス制限なし）が、UIは便宜上ユーザーの部門/課の種類をデフォルトで表示する
+- システムは部門再編（ユーザーが部門間を移動）をどのように処理しますか？ システムは部門更新を許可しながら、歴史的な文書所有権を維持しなければならない
+- システムは文書種類コード（りん議、教育）のマルチバイト文字をファイルパスでどのように処理しますか？ システムはUTF-8または他の適切な文字エンコーディングを適切にエンコードおよび処理しなければならない
 
 ---
 
-## Review & Acceptance Checklist
-*GATE: Automated checks run during main() execution*
+## 要件 *(必須)*
 
-### Content Quality
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
-- [x] All mandatory sections completed
+### 用語ガイドライン
+- **DocumentPath（文書パス）**: システム内の主要エンティティ。一意の識別子とメタデータを持つ保存されたファイルパスを表す。
+- **document（文書）**: 一般的な文脈で使用可能。DocumentPathエンティティを指す場合は「DocumentPath」を明示。
 
-### Requirement Completeness
-- [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous  
-- [x] Success criteria are measurable
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
+### 機能要件
+
+- **FR-001**: システムは一意の識別子を持つ文書ファイルパスを保存しなければならない
+- **FR-002**: システムはカスタマイズ可能なパス生成ルールで文書種類を定義しなければならない
+- **FR-003**: システムは文書種類ごとに柔軟な文書番号フォーマット定義をサポートしなければならない。以下の設定が可能:
+  - 含める構成要素（文書種類名、部門コード、課コード、年、月、自動インクリメント）
+  - 構成要素の順序と位置
+  - セパレーター（例: "-"、セパレーターなしなど）
+  - 各構成要素の桁数
+  - 年フォーマット（2桁または4桁）
+  - 月構成要素を含めるかどうか
+  - これらの設定とカウンタースコープ設定を定義・管理するPathGenerationRuleエンティティ
+- **FR-004**: システムは以下の文書種類コードをサポートしなければならない: A（契約上必要な提出文書）、C（社内メモ）、D（入手した文書）、Q（品質関連文書）、りん議（稟議書）、教育（研修記録）、および他のカスタマイズ可能な種類
+- **FR-005**: システムはGI（総務G、インフラI）、KT（分析K、技術T）などの部門・課コードおよび他の組織単位をサポートしなければならない
+- **FR-006**: システムは文書種類固有のルールに基づいて文書番号とファイルパスを自動生成しなければならない（ルールフォーマットに従った番号生成 + rootディレクトリと生成番号を組み合わせたパス構築）
+- **FR-007**: システムは文書種類ルールごとに定義されたスコープで自動インクリメントカウンターを維持しなければならない（例: 種類+課+年ごと、または種類+年ごとなど）
+- **FR-008**: システムは自動生成が適用できない場合に手動指定文書番号での文書パス手動追加を許可しなければならない（生成ルールは手動エントリには適用されない）
+- **FR-009**: システムは保存されたすべての文書パスの照会を許可しなければならない（フィルタリングなしの単純なリスト取得）
+- **FR-010**: システムは文書種類でフィルタリングされたパスの照会を許可しなければならない
+- **FR-011**: システムは既存文書パスの更新を許可しなければならない
+- **FR-012**: システムは識別子による文書パスの論理削除を許可しなければならない（ブール値フラグで削除マークを付けるが、監査目的でデータを無期限に保持）；削除された文書はデフォルトの検索結果および照会操作から除外されなければならない
+- **FR-013**: システムはアプリケーション再起動を超えて文書パスデータを永続化しなければならない（明示的に削除されない限り無期限保持）
+- **FR-014**: システムは約10,000件の文書パスを効率的に処理しなければならない（照会応答時間<100ms、文書作成<10ms）
+- **FR-015**: システムは文書番号、文書種類、部門、課、業務タスク、およびタイトル（部分一致）によるパス検索機能を提供しなければならない（フィルタ付き高度検索）；論理削除された文書をデフォルトで除外
+- **FR-016**: システムは読み取り操作で複数の同時ユーザーをサポートしなければならない
+- **FR-017**: システムは書き込み操作（更新と削除）で排他的アクセスを強制しなければならない
+- **FR-018**: システムは保存前に絶対ファイルパスを検証しなければならない
+- **FR-019**: システムはローカル絶対パス（例: /home/user/docsまたはC:\Users\docs）とWindows UNCネットワークパス（例: \\server\share\docs）の両方をサポートしなければならない
+- **FR-020**: システムは作成タイムスタンプと最終更新タイムスタンプを含むメタデータ保存をサポートしなければならない
+- **FR-021**: システムはパスデータにアクセスするためのプログラマティックAPIとユーザーインターフェースの両方を提供しなければならない；ユーザーインターフェースは操作失敗時に明確なエラーメッセージを表示しなければならない（例: カウンター枯渇、検証失敗、同時書き込み競合）
+- **FR-022**: システムは他のアプリケーションとの統合のためのプログラマティックアクセスを許可しなければならない
+- **FR-023**: システムは文書種類ごとのパス生成ルールの設定と変更をサポートしなければならない。変更は新規文書にのみ適用される（既存文書は後方互換性のため元の番号とパスを保持）；部門管理者のみが自部門の文書種類のルールを変更可能
+- **FR-024**: システムはユーザーを部門と課に関連付けなければならない
+- **FR-025**: システムは文書種類を特定の部門と課の組み合わせに関連付けなければならない；ユーザーインターフェースはデフォルトでユーザーの部門/課に関連する文書種類をフィルタリングして表示すべきであるが、他の種類を表示/選択するオプションあり（部門ベースの文書種類制限の厳格な強制なし）
+- **FR-026**: システムは文書を業務タスクに関連付けることを許可しなければならない（オプショナルな関連付け）
+- **FR-027**: システムは部門別の文書照会を許可しなければならない
+- **FR-028**: システムは課別の文書照会を許可しなければならない
+- **FR-029**: システムは業務タスク別の文書照会を許可しなければならない
+- **FR-030**: システムユーザーインターフェースはデフォルトでユーザーの部門と課の文書種類を表示すべきであるが、アクセス制限なしですべての利用可能な文書種類を表示するように切り替え可能
+- **FR-031**: システムは単一バイト（A、C、D、Q）とマルチバイト（りん議、教育）の文書種類識別子の両方をサポートしなければならない
+- **FR-032**: システムは文書種類ごとにrootディレクトリパスの設定を許可しなければならない。ローカル絶対パスとWindows UNCパスの両方をサポート
+- **FR-034**: システムはユーザーIDと部門/課割り当てのための外部認証プロバイダー（SSO、LDAP、Active Directory）との将来的な統合をサポートすべきである
+- **FR-035**: システムは初期段階でビルトイン認証なしで動作してもよい。ユーザーがホスティング環境で事前認証済みであると想定
+- **FR-036**: システムは一般ユーザーと部門管理者を区別しなければならない；部門管理者は自部門に属する文書種類のパス生成ルールを設定可能
+- **FR-037**: システムはビルトインバックアップまたはリカバリー機能を提供しない；バックアップと災害復旧は外部データベース管理ツールおよびホスティング環境インフラに委譲
+- **FR-038**: システムは部門管理者が自部門の業務タスクを作成・管理することを許可しなければならない；一般ユーザーは既存タスクの表示と選択のみ可能
+- **FR-039**: システムは新規文書作成時にタイトルを要求しなければならない（ユーザー入力、必須フィールド）
+- **FR-040**: システムは追加文書情報のためのオプショナルな備考フィールドを許可しなければならない
+- **FR-041**: システムはメタデータのみとして文書のバージョン番号追跡をサポートしなければならない（ユーザー提供フィールド；自動バージョン履歴または文書番号ごとの複数バージョンなし）
+- **FR-042**: システムは部分一致（部分文字列検索）を使用したタイトルによる文書検索を許可しなければならない
+
+### 主要エンティティ *(機能がデータを含む場合に含める)*
+
+- **Department（部門）**: 組織内の部門を表す
+  - 一意の部門コード（1文字、例: "G"は総務、"K"は分析）
+  - 部門名
+  - 部門内の課のリスト
+
+- **Section（課）**: 部門内の課を表す
+  - 一意の課コード（1文字、例: "I"はインフラ、"T"は技術）
+  - 課名
+  - 部門参照（親部門）
+  - 課に属するユーザーのリスト
+
+- **User（ユーザー）**: 文書を作成・管理するシステムユーザーを表す
+  - 一意のユーザー識別子
+  - ユーザー名
+  - 部門参照
+  - 課参照（各ユーザーは1つの部門と1つの課に属する）
+  - ユーザー役割（一般ユーザーまたは部門管理者）
+  - アクセス権限
+
+- **BusinessTask（業務タスク）**: 文書がサポートするビジネス活動またはタスクを表す
+  - 一意のタスク識別子
+  - タスク名/説明
+  - 部門参照（このタスクを所有する部門）
+  - 課参照（タスクが課固有の場合はオプショナル）
+  - 作成者（このタスクを作成した部門管理者）
+  - アクティブ/非アクティブステータス
+
+- **DocumentType（文書種類）**: 関連するパス生成ルールを持つ文書のカテゴリーを定義
+  - 文書種類コード（1-3文字、例: "A"、"C"、"D"、"Q"、"りん議"、"教育"）
+  - 文書種類説明（例: "契約上必要な提出文書"、"社内メモ"、"入手した文書"）
+  - 部門コード参照（この種類が属する部門、種類が複数部門にまたがる場合はオプショナル）
+  - 課コード参照（この種類が属する課、種類が複数課にまたがる場合はオプショナル）
+  - Rootディレクトリパス（この文書種類の絶対パスまたはWindows UNCパス）
+  - パス生成ルール参照（柔軟な番号フォーマットを定義）
+  - アクティブ/非アクティブステータス
+
+- **DocumentPath（文書パス）**: 一意の識別子と関連メタデータを持つ保存されたファイルパスを表す
+  - 一意のシステム識別子（システム生成）
+  - 文書番号（文書種類のルールに従って生成、例: "AGI-2509001"、"りん議I-25009"）
+  - タイトル（ユーザー提供、必須）
+  - 備考（ユーザー提供、オプショナル）
+  - バージョン番号（ユーザー提供、バージョン管理用）
+  - 文書種類参照
+  - 部門コード（文書番号またはユーザーコンテキストから抽出）
+  - 課コード（文書番号またはユーザーコンテキストから抽出）
+  - 業務タスク参照（この文書がサポートする業務タスク；オプショナル）
+  - ユーザー参照（文書を作成/所有したユーザー）
+  - ファイルパス（絶対パス: Unix/Linuxフォーマット、Windowsローカルドライブ、またはWindows UNCネットワークパス；パス生成ルールに基づいてrootディレクトリ + 文書番号から自動生成）
+  - 作成タイムスタンプ
+  - 最終更新タイムスタンプ
+  - 生成/手動入力フラグ（文書番号が自動生成されたか手動指定されたかを示す）
+  - 削除フラグ（監査目的の論理削除、無期限保持）
+
+- **PathGenerationRule（パス生成ルール）**: 文書種類の文書番号が自動的にどのように構築されるかを定義（種類ごとに完全に柔軟）
+  - ルール識別子
+  - 関連文書種類
+  - 構成要素設定（番号に表示される内容を定義する順序付きリスト）:
+    - 構成要素タイプ（document_type_name、department_code、section_code、year、month、auto_increment）
+    - シーケンス内の構成要素位置
+    - 桁数（年、月、インクリメントなどの数値構成要素用）
+    - 年フォーマット（2桁または4桁）
+  - セパレーター設定（構成要素間のセパレーターを定義、例: "-"、セパレーターなしなど）
+  - 自動インクリメントカウンタースコープ（カウンターをリセットするもの: 種類のみ、種類+年、種類+課+年など）
+  - 自動インクリメント桁数
+  - 出力例（例: フォーマット[Type][Dept][Section][YYMM][NNN]の場合"AGI-2509001"、[Type][Section]-[YY][NNN]の場合"りん議I-25009"）
 
 ---
 
-## Execution Status
-*Updated by main() during processing*
+## レビュー＆受入チェックリスト
+*GATE: main()実行中に自動チェック実行*
 
-- [x] User description parsed
-- [x] Key concepts extracted
-- [x] Ambiguities marked
-- [x] User scenarios defined
-- [x] Requirements generated
-- [x] Entities identified
-- [x] Review checklist passed (with 2 deferred low-impact clarifications)
+### コンテンツ品質
+- [x] 実装詳細なし（言語、フレームワーク、API）
+- [x] ユーザー価値とビジネスニーズに焦点
+- [x] 非技術関係者向けに記述
+- [x] すべての必須セクション完了
+
+### 要件完全性
+- [x] [NEEDS CLARIFICATION]マーカーが残っていない
+- [x] 要件はテスト可能で明確
+- [x] 成功基準は測定可能
+- [x] スコープは明確に境界設定
+- [x] 依存関係と前提条件が特定済み
 
 ---
 
-**✅ SUCCESS**: Specification ready for planning phase.
+## 実行ステータス
+*main()処理中に更新*
 
-**Clarifications Completed**: All ambiguities resolved across 2 sessions (8 questions total).
+- [x] ユーザー記述解析済み
+- [x] キーコンセプト抽出済み
+- [x] 曖昧さマーク済み
+- [x] ユーザーシナリオ定義済み
+- [x] 要件生成済み
+- [x] エンティティ特定済み
+- [x] レビューチェックリスト合格（2件の影響の少ない明確化を延期）
 
-**Next Steps**: Run `/plan` command to proceed to implementation planning phase.
+---
 
-````
+**✅ SUCCESS**: 仕様は計画フェーズの準備完了。
+
+**明確化完了**: すべての曖昧さを3セッション（合計20質問以上）で解決。
+
+**次のステップ**: `/plan`コマンドを実行して実装計画フェーズに進む。

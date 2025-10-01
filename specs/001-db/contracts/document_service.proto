@@ -1,0 +1,79 @@
+syntax = "proto3";
+package documentpath.v1;
+
+option go_package = "documentpath/v1;documentpathv1";
+
+import "google/protobuf/timestamp.proto";
+
+// Document representation
+message Document {
+  string id = 1;
+  string document_number = 2;
+  string document_type = 3;
+  string department = 4;
+  string section = 5;
+  string business_task = 6;
+  string user_id = 7;
+  string file_path = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+  bool generated = 11;
+  bool deleted = 12;
+}
+
+message ListDocumentsRequest {
+  bool include_deleted = 1;
+}
+
+message ListDocumentsResponse {
+  repeated Document documents = 1;
+}
+
+message CreateDocumentRequest {
+  string type_code = 1;
+  string user_id = 2;
+  string task_id = 3; // optional
+}
+
+message CreateDocumentManualRequest {
+  string document_number = 1;
+  string type_code = 2;
+  string file_path = 3;
+  string user_id = 4;
+  string task_id = 5;
+}
+
+message GetDocumentByIdRequest {
+  string id = 1;
+}
+
+message GetDocumentByNumberRequest {
+  string number = 1;
+}
+
+// Metadata messages
+message Department {
+  string code = 1;
+  string name = 2;
+  repeated string sections = 3;
+}
+
+message DocumentType {
+  string code = 1;
+  string description = 2;
+  string root_directory = 3;
+  bool active = 4;
+}
+
+service DocumentService {
+  rpc ListDocuments (ListDocumentsRequest) returns (ListDocumentsResponse);
+  rpc CreateDocumentAuto (CreateDocumentRequest) returns (Document);
+  rpc CreateDocumentManual (CreateDocumentManualRequest) returns (Document);
+  rpc GetDocumentById (GetDocumentByIdRequest) returns (Document);
+  rpc GetDocumentByNumber (GetDocumentByNumberRequest) returns (Document);
+}
+
+service MetadataService {
+  rpc ListDepartments (google.protobuf.Empty) returns (stream Department);
+  rpc ListDocumentTypes (google.protobuf.Empty) returns (stream DocumentType);
+}

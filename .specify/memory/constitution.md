@@ -1,202 +1,152 @@
 <!--
-SYNC IMPACT REPORT
+Sync Impact Report
 ==================
-Version Change: 1.1.0 → 1.1.1
-Date: 2025-10-01
-
-Modified Principles:
-
-Added Sections:
-
-Removed Sections:
-
-Templates Requiring Updates:
-✅ .specify/templates/plan-template.md - No update required (aligned)
-✅ .specify/templates/spec-template.md - No update required (aligned)
-✅ .specify/templates/tasks-template.md - No update required (aligned)
-✅ .specify/templates/agent-file-template.md - No update required (aligned)
-✅ .github/prompts/*.prompt.md - No update required (aligned)
-
+Version change: (initial template) → 1.0.0
+Modified principles: N/A (initial version)
+Added sections:
+  - Core Principles (5 principles)
+  - Development Standards
+  - Governance
+Removed sections: N/A
+Templates requiring updates:
+  ✅ .specify/templates/plan-template.md (Constitution Check section aligns with principles)
+  ✅ .specify/templates/spec-template.md (no changes needed - language agnostic)
+  ✅ .specify/templates/tasks-template.md (TDD principle alignment confirmed)
 Follow-up TODOs:
-<!--
-SYNC IMPACT REPORT
-==================
-Version Change: 1.1.1 -> 1.1.2
-Date: 2025-10-02
-
-Modified Principles:
-- CLARIFIED: III. Template-Driven Automation - Explicitly require metadata endpoints for UI-driven labels when storage tables exist
-
-Added Sections:
-- None
-
-Removed Sections:
-- None
-
-Templates Requiring Updates:
-✅ .specify/templates/plan-template.md - ✅ updated
-✅ .specify/templates/spec-template.md - ✅ updated
-✅ .specify/templates/tasks-template.md - ✅ updated
-✅ .specify/templates/agent-file-template.md - ✅ updated
-✅ .github/prompts/*.prompt.md - ⚠ pending review
-
-Follow-up TODOs:
-- Review `.github/prompts/*.prompt.md` for any agent-specific names and update to generic guidance where needed
+  - RATIFICATION_DATE set to today (2025-10-02) as initial adoption
 -->
 
-# Spec Kit Constitution
+# 文書パス管理プロジェクト憲章
 
-## Core Principles
+## 核となる原則
 
-### I. Specification-First Development
+### I. 日本語ファースト（必須）
 
-Every feature begins with a complete, unambiguous specification before any technical planning or implementation.
+すべての文書、コミットメッセージ、AI応答は日本語で記述すること。これはプロジェクトの基本要件であり、例外なく適用される。
 
-**Rules**:
-- MUST create `spec.md` before `plan.md` or code
-- Specifications MUST focus on WHAT and WHY, never HOW
-- All ambiguities MUST be marked with `[NEEDS CLARIFICATION: specific question]`
-- Specifications MUST be written for business stakeholders, not developers
-- Technical implementation details (languages, frameworks, APIs) are FORBIDDEN in specs
+- 仕様書（spec.md）、計画書（plan.md）、タスク（tasks.md）等すべての文書は日本語
+- Gitコミットメッセージは日本語で記述
+- AIエージェントとの対話および応答は日本語
+- コード内のコメントは日本語（変数名・関数名は英語可）
 
-**Rationale**: Clear requirements prevent rework and ensure stakeholder alignment before costly development begins.
+**根拠**: プロジェクト関係者の主要言語が日本語であり、コミュニケーション効率と理解精度を最大化するため。
 
-### II. Test-Driven Development (NON-NEGOTIABLE)
+### II. テストファースト（必須）
 
-All implementation follows strict red-green-refactor TDD cycles using Rust testing tools.
+TDD（テスト駆動開発）を厳格に適用する。すべての実装は「テスト作成 → ユーザー承認 → テスト失敗確認 → 実装」の順序で進める。
 
-**Rules**:
-- Tests MUST be written before implementation code
-- Tests MUST fail initially (prove they detect absence of feature)
-- Implementation MUST make failing tests pass
-- Contract tests and integration tests MUST be completed before any implementation
-- No implementation without failing tests
-- MUST use `cargo test` for unit tests (in same file or `tests/` directory)
-- Integration tests MUST live in `tests/` directory with separate files per test suite
-- MUST use `#[test]` and `#[cfg(test)]` attributes appropriately
-- Test modules MUST follow Rust conventions (`mod tests` for unit tests)
+- 実装前に必ずテストコードを記述
+- テストが失敗することを確認してから実装開始
+- Red-Green-Refactorサイクルを厳守
+- 契約テスト、統合テスト、単体テストの順で作成
 
-**Rationale**: TDD ensures correctness, prevents regression, and validates requirements are testable. Rust's built-in testing framework enforces this discipline naturally.
+**根拠**: 要件の明確化、リグレッション防止、設計品質の向上を保証するため。
 
-### III. Template-Driven Automation
+### III. データモデル駆動設計
 
-All artifacts follow executable templates with defined workflows and validation gates.
+すべての機能はデータモデル（data-model.md）から出発する。エンティティ、関係性、検証ルールを先に定義し、それに基づいて契約（contracts/）と実装を構築する。
 
-**Rules**:
-- MUST use templates from `.specify/templates/` for all documents
-- Templates contain executable `Execution Flow` sections that MUST be followed
-- Placeholders (e.g., `[FEATURE_NAME]`) MUST be replaced with concrete values
-- Templates include validation checklists that MUST pass
-- Scripts in `.specify/scripts/` MUST be used for automation (e.g., feature creation, plan setup)
+- エンティティ定義が実装の起点
+- 状態遷移が必要な場合は明示的に定義
+- 検証ルールは要件から抽出し、テスト可能な形式で記述
+- データモデルの変更は必ず仕様書（spec.md）にトレース可能であること
 
-**Rationale**: Templates ensure consistency, reduce manual errors, and encode institutional knowledge.
+**根拠**: データ整合性を保証し、ビジネスロジックの一貫性を維持するため。
 
-### IV. Structured Documentation
+### IV. 契約による統合
 
-Documentation follows a hierarchical structure with clear separation of concerns.
+システム境界（API、CLI、ライブラリ）はすべて契約（OpenAPI/gRPC schema等）で定義する。契約テストを先に作成し、実装は契約に従う。
 
-**Rules**:
-- Feature documentation MUST live in `specs/[###-feature-name]/`
-- Each feature MUST produce: `spec.md`, `plan.md`, `tasks.md`
-- Phase-specific artifacts MUST be generated: `research.md`, `data-model.md`, `contracts/`, `quickstart.md`
-- Agent-specific guidance files MUST stay under 150 lines for token efficiency
-- Templates and prompts MUST be versioned and tracked
+- 各エンドポイント・コマンドに対して契約定義
+- 契約テストは実装前に作成し、必ず失敗させる
+- リクエスト/レスポンススキーマの厳密な検証
+- 契約変更は後方互換性を考慮（破壊的変更は明示）
 
-**Rationale**: Predictable structure enables automation, improves discoverability, and supports AI agent workflows.
+**根拠**: インターフェースの明確化、統合の安全性、ドキュメントの自動生成を実現するため。
 
-### V. Clarity Over Assumptions
+### V. シンプルさ優先
 
-When information is missing or ambiguous, mark it explicitly rather than guessing.
+YAGNI（You Aren't Gonna Need It）原則を適用する。必要になるまで複雑さを導入しない。
 
-**Rules**:
-- Use `[NEEDS CLARIFICATION: specific question]` for all unknowns
-- Technical Context fields default to `NEEDS CLARIFICATION` if not explicitly known
-- Phase 0 Research MUST resolve all clarifications before proceeding
-- Validation checklists MUST fail if clarifications remain unresolved
-- Errors MUST be raised for blocking unknowns (e.g., "Cannot determine user scenarios")
+- 抽象化は実際の重複が3箇所以上現れてから
+- フレームワークやライブラリは必要最小限
+- 設計パターンは問題解決に直接寄与する場合のみ使用
+- 複雑さの導入は憲章違反として正当化が必要
 
-**Rationale**: Explicit unknowns prevent silent failures and misunderstood requirements. Better to ask than to implement wrong.
+**根拠**: 保守性を高め、理解コストを下げ、変更容易性を維持するため。
 
-### VI. Rust Idioms & Safety
+## 開発標準
 
-All Rust code follows idiomatic patterns and leverages the type system for safety.
+### 文書構造
 
-**Rules**:
-- MUST compile without warnings (`cargo build` clean, use `#[allow(...)]` sparingly with justification)
-- MUST pass `cargo clippy` with default lints (document exceptions in code)
-- MUST use `Result<T, E>` for recoverable errors, never panic in library code
-- MUST use `?` operator or explicit `match`/`if let` for error propagation, NO `unwrap()` or `expect()` in production code
-- Test code MUST return `Result<()>` and use `?` operator instead of `unwrap()`/`expect()` to enable proper error reporting
-- Test helper functions MUST return `Result<T>` when they perform fallible operations
-- CLI applications MAY panic for unrecoverable errors, but MUST provide clear error messages
-- MUST leverage ownership, borrowing, and lifetimes correctly (no unnecessary clones)
-- MUST use `cargo fmt` for consistent formatting
-- Public APIs MUST have rustdoc comments (`///`) with examples
-- MUST prefer `std` types; external crates require justification in Complexity Tracking
-- MUST use semantic versioning for crate versions (align with constitution versioning)
+- 仕様書: `/specs/[###-feature]/spec.md`（日本語）
+- 実装計画: `/specs/[###-feature]/plan.md`（日本語）
+- データモデル: `/specs/[###-feature]/data-model.md`（日本語）
+- 契約定義: `/specs/[###-feature]/contracts/`
+- タスクリスト: `/specs/[###-feature]/tasks.md`（日本語）
 
-**Rationale**: Rust's compiler enforces memory safety and thread safety. Following idiomatic patterns maximizes these guarantees and produces maintainable code. Clippy catches common mistakes and anti-patterns. Using `?` in tests provides better error context than panics from `unwrap()`.
+### コミットメッセージ規約
 
-## Workflow Gates
+日本語で記述し、以下の形式に従う：
 
-**Constitutional Checkpoints** (enforced at specific phases):
+```
+<type>(<scope>): <subject>
 
-1. **Specification Gate** (`spec.md`):
-   - No `[NEEDS CLARIFICATION]` markers remain (or documented deferred)
-   - Requirements are testable and unambiguous
-   - No implementation details present
-   - Written for non-technical stakeholders
+<body>
 
-2. **Planning Gate** (`plan.md`):
-   - Constitution Check section completed
-   - All Technical Context fields resolved
-   - Phase 0 Research resolves all unknowns
-   - Post-Design Constitution Check passes
+<footer>
+```
 
-3. **Tasks Gate** (`tasks.md`):
-   - Tests numbered before corresponding implementation
-   - Parallel tasks (`[P]`) verified as independent
-   - All contracts have test tasks
-   - All entities have model tasks
+Type（日本語または英語プレフィックス）:
+- `feat` / `機能`: 新機能
+- `fix` / `修正`: バグ修正
+- `docs` / `文書`: ドキュメント変更
+- `test` / `テスト`: テストコード追加・修正
+- `refactor` / `リファクタ`: 機能変更を伴わないコード改善
 
-4. **Implementation Gate**:
-   - Tests fail before implementation
-   - Tests pass after implementation
-   - No code committed without passing tests
-   - `cargo build` completes without warnings
-   - `cargo clippy` passes with default lints
-   - `cargo test` passes all tests (unit + integration)
-   - Quickstart validation executes successfully
+例:
+```
+feat(文書パス): 文書種類別パス生成ルール機能を追加
 
-## Governance
+PathGenerationRuleエンティティを実装し、文書種類ごとに
+異なる番号フォーマットを定義可能にした。
 
-**Authority**: This constitution supersedes all other development practices and conventions.
+Closes #42
+```
 
-**Amendment Process**:
-- Constitution changes MUST be documented with version bump rationale
-- Version follows semantic versioning:
-  - **MAJOR**: Backward-incompatible governance changes, principle removals/redefinitions
-  - **MINOR**: New principles, materially expanded sections
-  - **PATCH**: Clarifications, wording improvements, typo fixes
-- Amendments MUST include Sync Impact Report identifying affected templates
-- All dependent templates and documentation MUST be updated before finalizing amendment
-- Changes MUST include ISO-formatted dates (YYYY-MM-DD)
+### コードレビュー基準
 
-**Compliance**:
-- Template `Execution Flow` sections enforce constitutional requirements
-- Validation checklists MUST be completed and passing
-- Gate failures MUST block progression to next phase
-- Complexity violations MUST be documented and justified in Complexity Tracking tables
+- 憲章原則の遵守確認（特にI, II, V）
+- テストが先に書かれ、失敗していたか
+- 日本語コメントの適切性
+- データモデルとの整合性
+- 契約との整合性
 
-**Version Control**:
-- Constitution version referenced in all templates (e.g., `Based on Constitution v1.0.0`)
-- Templates updated when constitution changes
-- Agent guidance files regenerated to reflect new principles
+## ガバナンス
 
-**Living Document**:
-- This constitution evolves with the project
-- Feedback from template execution informs amendments
-- Retrospectives identify gaps or outdated principles
+### 憲章の優先順位
 
-**Version**: 1.1.1 | **Ratified**: 2025-09-30 | **Last Amended**: 2025-10-01
-**Version**: 1.1.2 | **Ratified**: 2025-09-30 | **Last Amended**: 2025-10-02
+本憲章はすべての開発プラクティスに優先する。憲章違反のコードはマージ不可。
+
+### 改訂手続き
+
+1. 改訂提案をIssueとして起票（日本語）
+2. 影響範囲の分析（どのテンプレート・文書に波及するか）
+3. 承認後、憲章バージョンを更新
+4. 依存テンプレート（plan-template.md、tasks-template.md等）を同期
+5. 移行計画が必要な場合は別途策定
+
+### バージョニング
+
+セマンティックバージョニングに従う：
+- **MAJOR**: 後方互換性のない原則の削除・再定義
+- **MINOR**: 新原則の追加、セクションの拡張
+- **PATCH**: 文言の明確化、タイポ修正
+
+### コンプライアンス
+
+- すべてのPR/レビューで憲章遵守を確認
+- 複雑さの導入には正当化を要求（Complexity Trackingセクションに記録）
+- 実行時ガイダンスは本憲章に従う
+
+**Version**: 1.0.0 | **Ratified**: 2025-10-02 | **Last Amended**: 2025-10-02
