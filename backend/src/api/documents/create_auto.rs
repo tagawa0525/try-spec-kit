@@ -6,17 +6,14 @@ use sqlx::SqlitePool;
 use std::path::PathBuf;
 
 use crate::error::Result;
-use crate::models::{DeptCode, DocumentPath, SectionCode, TaskId, TypeCode, UserId};
+use crate::models::{DocumentPath, TaskId, TypeCode, UserId};
 use crate::services::document_service;
 
 #[derive(Debug, Deserialize)]
 pub struct CreateDocumentAutoRequest {
     pub type_code: String,
-    pub dept_code: char,
-    pub section_code: char,
     pub user_id: String,
-    pub file_path: String,
-    pub business_task: Option<String>,
+    pub task_id: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -59,16 +56,24 @@ pub async fn create_document_auto(
     State(pool): State<SqlitePool>,
     Json(req): Json<CreateDocumentAutoRequest>,
 ) -> Result<(StatusCode, Json<CreateDocumentResponse>)> {
-    let file_path = PathBuf::from(&req.file_path);
-
+    // Get user to determine department and section
+    let user = crate::storage::user::get_user(&pool, &UserId::new(&req.user_id))
+        .await?
+        .ok_or_else(|| crate::error::Error::UserNotFound(req.user_id.clone()))?;
+    
+    // Get document type to determine root directory
+    let doc_type = crate::storage::document_type::get_document_type(&pool, &TypeCode::new(&req.type_code))
+        .await?
+        .ok_or_else(|| crate::error::Error::NotFound(format!("Document type: {}", req.type_code)))?;
+    
     let doc = document_service::create_document_auto(
         &pool,
         TypeCode::new(&req.type_code),
-        DeptCode::new(req.dept_code),
-        SectionCode::new(req.section_code),
+        user.department,
+        user.section,
         UserId::new(&req.user_id),
-        file_path,
-        req.business_task.map(|t| TaskId::new(&t)),
+        PathBuf::from(&doc_type.root_directory),
+        req.task_id.map(|t| TaskId::new(&t)),
     )
     .await?;
 

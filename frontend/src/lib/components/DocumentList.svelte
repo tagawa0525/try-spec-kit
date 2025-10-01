@@ -42,6 +42,50 @@
   $: filteredDocuments = showDeleted
     ? documents
     : documents.filter((doc) => !doc.deleted);
+
+  import { onMount } from 'svelte';
+  import { departments, documentTypes, loadMetadata } from '$lib/stores/metadata';
+
+  // Fallback maps while metadata not loaded
+  const TYPE_NAME_MAP: Record<string, string> = {
+    A: 'AGI (契約)',
+    'りん議': 'りん議',
+    教育: '教育',
+  };
+
+  const DEPT_NAME_MAP: Record<string, string> = {
+    G: '総務',
+    K: '解析',
+  };
+
+  let depsList: any[] = [];
+  let typesList: any[] = [];
+
+  const unsubscribeDeps = departments.subscribe((v) => (depsList = v));
+  const unsubscribeTypes = documentTypes.subscribe((v) => (typesList = v));
+
+  onMount(() => {
+    // Load metadata if empty
+    if (depsList.length === 0 || typesList.length === 0) {
+      loadMetadata().catch((e) => console.error('Failed to load metadata', e));
+    }
+    return () => {
+      unsubscribeDeps();
+      unsubscribeTypes();
+    };
+  });
+
+  function displayType(typeCode: string) {
+    const found = typesList.find((t) => t.code === typeCode);
+    if (found) return `${found.code} (${found.description})`;
+    return TYPE_NAME_MAP[typeCode] ?? typeCode;
+  }
+
+  function displayDept(deptCode: string) {
+    const found = depsList.find((d) => d.code === deptCode);
+    if (found) return found.name;
+    return DEPT_NAME_MAP[deptCode] ?? deptCode;
+  }
 </script>
 
 <div class="document-list">
@@ -71,8 +115,8 @@
             <td class="document-number">
               <a href="/documents/{doc.id}">{doc.document_number}</a>
             </td>
-            <td>{doc.document_type}</td>
-            <td>{doc.department}</td>
+            <td>{displayType(doc.document_type)}</td>
+            <td>{displayDept(doc.department)}</td>
             <td>{doc.section}</td>
             <td class="file-path" title={doc.file_path}>
               {doc.file_path}

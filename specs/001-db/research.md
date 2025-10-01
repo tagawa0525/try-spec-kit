@@ -1,3 +1,38 @@
+# Research: Document Path Management Database
+
+Feature spec: /home/tagawa/try-spec-kit-via-vs_code/specs/001-db/spec.md
+
+Date: 2025-10-02
+
+Decision: Project type is a web application with a Rust backend and Svelte frontend.
+
+Rationale:
+- The repository contains `backend/` (Rust, axum, sqlx) and `frontend/` (Svelte/Vite) folders.
+- The backend already implements storage, generation and API patterns; continuing in Rust avoids unnecessary rewrite.
+
+Storage Decision: SQLite via `sqlx` (embedded DB) for initial implementation.
+
+Rationale:
+- Existing code and migrations in `backend/migrations` use SQLite; using the same reduces friction.
+- Scale target (~10k paths) fits SQLite performance and simplicity.
+
+Counter & Generation Decision:
+- Maintain DB-backed counters with transactional increments scoped per `PathGenerationRule`.
+
+Rationale:
+- DB transactions ensure atomic increments under concurrent writers.
+
+Authentication/Authorization:
+- Initial implementation assumes hosting-layer authentication; backend will enforce department/section checks per spec.
+
+Observability:
+- Logging only (no dedicated metrics) as per spec decisions; keep hooks for future observability additions.
+
+Open Questions (resolved from spec):
+- Supported path formats (Unix absolute, Windows local, Windows UNC) — resolved: accept all and store as-is.
+- File existence checks — optional future enhancement (NOT in initial scope).
+
+Output: research decisions above resolve all `NEEDS CLARIFICATION` entries. Proceed to Phase 1 design.
 # Phase 0: Research & Technical Decisions
 
 **Feature**: Document Path Management Database  

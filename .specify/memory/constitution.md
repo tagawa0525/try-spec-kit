@@ -5,13 +5,10 @@ Version Change: 1.1.0 → 1.1.1
 Date: 2025-10-01
 
 Modified Principles:
-- CLARIFIED: VI. Rust Idioms & Safety - Added explicit test code error handling requirements
 
 Added Sections:
-- None
 
 Removed Sections:
-- None
 
 Templates Requiring Updates:
 ✅ .specify/templates/plan-template.md - No update required (aligned)
@@ -21,7 +18,30 @@ Templates Requiring Updates:
 ✅ .github/prompts/*.prompt.md - No update required (aligned)
 
 Follow-up TODOs:
+<!--
+SYNC IMPACT REPORT
+==================
+Version Change: 1.1.1 -> 1.1.2
+Date: 2025-10-02
+
+Modified Principles:
+- CLARIFIED: III. Template-Driven Automation - Explicitly require metadata endpoints for UI-driven labels when storage tables exist
+
+Added Sections:
 - None
+
+Removed Sections:
+- None
+
+Templates Requiring Updates:
+✅ .specify/templates/plan-template.md - ✅ updated
+✅ .specify/templates/spec-template.md - ✅ updated
+✅ .specify/templates/tasks-template.md - ✅ updated
+✅ .specify/templates/agent-file-template.md - ✅ updated
+✅ .github/prompts/*.prompt.md - ⚠ pending review
+
+Follow-up TODOs:
+- Review `.github/prompts/*.prompt.md` for any agent-specific names and update to generic guidance where needed
 -->
 
 # Spec Kit Constitution
@@ -179,3 +199,4 @@ All Rust code follows idiomatic patterns and leverages the type system for safet
 - Retrospectives identify gaps or outdated principles
 
 **Version**: 1.1.1 | **Ratified**: 2025-09-30 | **Last Amended**: 2025-10-01
+**Version**: 1.1.2 | **Ratified**: 2025-09-30 | **Last Amended**: 2025-10-02

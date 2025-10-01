@@ -41,6 +41,7 @@ async fn main() -> anyhow::Result<()> {
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::info!("Starting server on {}", addr);
     tracing::info!("API endpoints:");
+    tracing::info!("  GET    /api/documents           - Get all documents");
     tracing::info!("  POST   /api/documents           - Create document (auto-generated)");
     tracing::info!("  POST   /api/documents/manual    - Create document (manual number)");
     tracing::info!("  GET    /api/documents/:id       - Get document by ID");

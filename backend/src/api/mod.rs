@@ -1,6 +1,7 @@
 //! API handlers
 
 pub mod documents;
+pub mod metadata;
 
 use axum::{
     Json, Router,
@@ -15,9 +16,12 @@ use crate::error::Error;
 
 /// Create the API router
 pub fn create_router(pool: SqlitePool) -> Router {
-    Router::new()
+    let router = Router::new()
         // Document endpoints
-        .route("/api/documents", post(documents::create_document_auto))
+        .route(
+            "/api/documents",
+            get(documents::get_all_documents).post(documents::create_document_auto),
+        )
         .route(
             "/api/documents/manual",
             post(documents::create_document_manual),
@@ -33,7 +37,11 @@ pub fn create_router(pool: SqlitePool) -> Router {
             "/api/documents/number/{number}",
             get(documents::get_document_by_number),
         )
-        .with_state(pool)
+        // Metadata endpoints
+        .route("/api/departments", get(metadata::list_departments))
+        .route("/api/document-types", get(metadata::list_document_types));
+
+    router.with_state(pool)
 }
 
 /// Convert Error to HTTP response

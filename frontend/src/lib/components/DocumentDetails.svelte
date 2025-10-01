@@ -6,6 +6,48 @@
   export let onUpdate: ((doc: DocumentPath) => void) | undefined = undefined;
   export let onDelete: (() => void) | undefined = undefined;
 
+  import { onMount } from 'svelte';
+  import { departments, documentTypes, loadMetadata } from '$lib/stores/metadata';
+
+  // Fallback maps
+  const TYPE_NAME_MAP: Record<string, string> = {
+    A: 'AGI (契約)',
+    'りん議': 'りん議',
+    教育: '教育',
+  };
+
+  const DEPT_NAME_MAP: Record<string, string> = {
+    G: '総務',
+    K: '解析',
+  };
+
+  let depsList: any[] = [];
+  let typesList: any[] = [];
+  const unsubscribeDeps = departments.subscribe((v) => (depsList = v));
+  const unsubscribeTypes = documentTypes.subscribe((v) => (typesList = v));
+
+  onMount(() => {
+    if (depsList.length === 0 || typesList.length === 0) {
+      loadMetadata().catch((e) => console.error('Failed to load metadata', e));
+    }
+    return () => {
+      unsubscribeDeps();
+      unsubscribeTypes();
+    };
+  });
+
+  function displayType(typeCode: string) {
+    const found = typesList.find((t) => t.code === typeCode);
+    if (found) return `${found.code} (${found.description})`;
+    return TYPE_NAME_MAP[typeCode] ?? typeCode;
+  }
+
+  function displayDept(deptCode: string) {
+    const found = depsList.find((d) => d.code === deptCode);
+    if (found) return found.name;
+    return DEPT_NAME_MAP[deptCode] ?? deptCode;
+  }
+
   let isEditing = false;
   let newPath = document.file_path;
   let loading = false;
@@ -98,12 +140,12 @@
 
     <div class="detail-item">
       <span class="label">文書種類</span>
-      <span class="value">{document.document_type}</span>
+      <span class="value">{displayType(document.document_type)}</span>
     </div>
 
     <div class="detail-item">
       <span class="label">部門</span>
-      <span class="value">{document.department}</span>
+      <span class="value">{displayDept(document.department)}</span>
     </div>
 
     <div class="detail-item">
