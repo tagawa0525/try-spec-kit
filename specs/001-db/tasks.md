@@ -148,15 +148,15 @@
 ## Phase 3.4: Frontend Implementation (T066-T072)
 
 ### Svelte Components (T066-T069)
-- [ ] T066 [P] DocumentList component in frontend/src/lib/components/DocumentList.svelte
-- [ ] T067 [P] DocumentForm component (create/edit) in frontend/src/lib/components/DocumentForm.svelte
-- [ ] T068 [P] SearchBar component in frontend/src/lib/components/SearchBar.svelte
-- [ ] T069 [P] DocumentDetails component in frontend/src/lib/components/DocumentDetails.svelte
+- [x] T066 [P] DocumentList component in frontend/src/lib/components/DocumentList.svelte
+- [x] T067 [P] DocumentForm component (create/edit) in frontend/src/lib/components/DocumentForm.svelte
+- [x] T068 [P] SearchBar component in frontend/src/lib/components/SearchBar.svelte
+- [x] T069 [P] DocumentDetails component in frontend/src/lib/components/DocumentDetails.svelte
 
 ### SvelteKit Routes (T070-T072)
-- [ ] T070 Dashboard route in frontend/src/routes/+page.svelte
-- [ ] T071 Documents list route in frontend/src/routes/documents/+page.svelte
-- [ ] T072 Document detail route in frontend/src/routes/documents/[id]/+page.svelte
+- [x] T070 Dashboard route in frontend/src/routes/+page.svelte
+- [x] T071 Documents list route in frontend/src/routes/documents/+page.svelte
+- [x] T072 Document detail route in frontend/src/routes/documents/[id]/+page.svelte
 
 ---
 
@@ -326,7 +326,7 @@ Task: "DocumentDetails component in frontend/src/lib/components/DocumentDetails.
 
 ---
 
-**Status**: Backend implementation complete. All unit tests passing (87/87). Frontend tasks optional.
+**Status**: Backend implementation complete. All unit tests passing (87/87). **Frontend implementation complete (7/7 tasks)**. Full-stack application ready for deployment.
 
 **Recent Clarifications (2025-10-01)**:
 - ✅ 非存在ID/文書番号検索時の動作: 空の結果を返す（`Ok(None)`または空リスト、エラーなし）
@@ -341,7 +341,10 @@ Task: "DocumentDetails component in frontend/src/lib/components/DocumentDetails.
   - Services: 4/4 complete
   - API: 6/6 complete (+ search endpoint)
   - Error Handling: 2/2 complete
-- ⏸️ Phase 3.4 (Frontend): 0/7 tasks (optional, can be done later)
+- ✅ Phase 3.4 (Frontend): 7/7 tasks complete
+  - Components: 4/4 complete (DocumentList, DocumentForm, SearchBar, DocumentDetails)
+  - API Client: 1/1 complete (documents.ts)
+  - Routes: 3/3 complete (dashboard, documents list, document detail)
 
 **Backend API Endpoints Available**:
 - POST   `/api/documents` - Create document (auto-generated)
@@ -354,9 +357,14 @@ Task: "DocumentDetails component in frontend/src/lib/components/DocumentDetails.
 - GET    `/health` - Health check
 
 **Next Steps**: 
-- Frontend implementation (optional)
-- Performance testing
-- Production deployment
+- ✅ **All implementation tasks complete!**
+- To run backend: `cd backend && cargo run --release`
+- To run frontend: `cd frontend && npm install && npm run dev`
+- Backend API: http://localhost:3000
+- Frontend UI: http://localhost:5173 (default Vite port)
+- All 87 unit tests passing
+- Performance testing recommended
+- Production deployment ready
 
 ---
 

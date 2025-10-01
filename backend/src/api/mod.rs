@@ -23,14 +23,14 @@ pub fn create_router(pool: SqlitePool) -> Router {
             post(documents::create_document_manual),
         )
         .route("/api/documents/search", get(documents::search_documents))
-        .route("/api/documents/:id", get(documents::get_document_by_id))
+        .route("/api/documents/{id}", get(documents::get_document_by_id))
         .route(
-            "/api/documents/:id/path",
+            "/api/documents/{id}/path",
             put(documents::update_document_path),
         )
-        .route("/api/documents/:id", delete(documents::delete_document))
+        .route("/api/documents/{id}", delete(documents::delete_document))
         .route(
-            "/api/documents/number/:number",
+            "/api/documents/number/{number}",
             get(documents::get_document_by_number),
         )
         .with_state(pool)
