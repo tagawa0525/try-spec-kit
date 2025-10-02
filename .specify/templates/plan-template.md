@@ -47,7 +47,26 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**I. 日本語ファースト**
+- [ ] すべての文書（spec.md、plan.md、tasks.md等）は日本語で記述
+- [ ] コミットメッセージは日本語
+- [ ] AIとの対話・応答は日本語
+
+**II. テストファースト**
+- [ ] 契約テスト、統合テスト、単体テストが実装前に計画されている
+- [ ] TDDサイクル（Red-Green-Refactor）が設計に組み込まれている
+
+**III. データモデル駆動設計**
+- [ ] data-model.mdがエンティティ、関係性、検証ルールを定義している
+- [ ] データモデルがspec.mdの要件にトレース可能
+
+**IV. 契約による統合**
+- [ ] contracts/ディレクトリにAPI/CLI契約定義が存在
+- [ ] 契約テストが契約定義に基づいて計画されている
+
+**V. シンプルさ優先**
+- [ ] YAGNIに従い、必要最小限の複雑さのみ導入
+- [ ] 複雑さの導入には正当化をComplexity Trackingに記録
 
 ## Project Structure
 
@@ -152,7 +171,7 @@ directories captured above]
    - Quickstart test = story validation steps
 
 5. **Update agent file incrementally** (O(1) operation):
-   - Run `.specify/scripts/bash/update-agent-context.sh copilot`
+   - Run `.specify/scripts/bash/update-agent-context.sh claude`
      **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
    - If exists: Add only NEW tech from current plan
    - Preserve manual additions between markers
@@ -216,6 +235,4 @@ directories captured above]
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.1.0 - See `/memory/constitution.md`*
-
-````
+*Based on Constitution v1.0.0 - See `.specify/memory/constitution.md`*

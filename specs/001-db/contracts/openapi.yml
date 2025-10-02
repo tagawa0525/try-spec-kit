@@ -1,0 +1,66 @@
+openapi: 3.0.3
+info:
+  title: Document Path Management API
+  version: 0.1.0
+
+paths:
+  /api/documents:
+    get:
+      summary: List documents
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create document (auto-generated number)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type_code:
+                  type: string
+                user_id:
+                  type: string
+                task_id:
+                  type: string
+      responses:
+        '201':
+          description: Created
+
+  /api/documents/manual:
+    post:
+      summary: Create document with manual number
+      requestBody:
+        required: true
+      responses:
+        '201':
+          description: Created
+
+  /api/documents/{id}:
+    get:
+      summary: Get document by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /api/departments:
+    get:
+      summary: List departments
+      responses:
+        '200':
+          description: OK
+
+  /api/document-types:
+    get:
+      summary: List active document types
+      responses:
+        '200':
+          description: OK
