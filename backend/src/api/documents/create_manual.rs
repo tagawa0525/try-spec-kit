@@ -37,7 +37,7 @@ pub async fn create_document_manual(
             section_code: SectionCode::new(req.section_code),
             user_id: UserId::new(&req.user_id),
             file_path,
-            business_task: req.business_task.map(|t| TaskId::new(&t)),
+            business_task: req.business_task.filter(|t| !t.is_empty()).map(|t| TaskId::new(&t)),
         },
     )
     .await?;

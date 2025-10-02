@@ -73,7 +73,7 @@ pub async fn create_document_auto(
         user.section,
         UserId::new(&req.user_id),
         PathBuf::from(&doc_type.root_directory),
-        req.task_id.map(|t| TaskId::new(&t)),
+        req.task_id.filter(|t| !t.is_empty()).map(|t| TaskId::new(&t)),
     )
     .await?;
 
